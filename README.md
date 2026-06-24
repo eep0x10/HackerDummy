@@ -81,6 +81,7 @@ It matches by **class + route** and prints `ENCONTRADAS` (matched),
 | 04 | [ShopAPI](labs/04-shopapi/) | Python stdlib JSON API + JWT | 9 | OWASP API Top 10: BOLA (object), BFLA (function), mass-assignment, excessive data exposure, JWT alg:none/weak-secret, missing rate-limiting, SSRF, verbose errors. |
 | 05 | [SpringVault](labs/05-springvault/) | Java/Spring Boot (stdlib mock) | 7 | Spring Boot Actuator exposed: `/env` + `/heapdump` secret mining, Jolokia (JMX→RCE), H2 console (RCE), cleartext creds, Whitelabel/stack-trace disclosure. Tests stack-detection → signal → mining on a non-Python stack. |
 | 06 | [OpenServices](labs/06-openservices/) | Infra — exposed network services | 8 | Unauthenticated Redis, Elasticsearch, MongoDB, CouchDB, Docker API (no TLS), Memcached, MySQL (EOL), + an admin panel with default `admin/admin`. Tests the infra `service_scan` port/banner/signal pipeline. |
+| 07 | [GraphVault](labs/07-graphvault/) | GraphQL API (stdlib) | 8 | GraphQL: introspection enabled, BOLA, excessive data exposure, BFLA mutation, batching (no rate-limit), query-depth DoS, SQLi via argument, field-suggestion disclosure. |
 
 ## Results so far
 
@@ -92,11 +93,12 @@ It matches by **class + route** and prints `ENCONTRADAS` (matched),
 | 04  | 9       | 6/9 (67%)       | **9/9 (100%)**   | 100%      | +2 API classes (bfla/excessive-data) ([RESULTS](labs/04-shopapi/RESULTS.md)) |
 | 05  | 7       | 5/7 (71%)       | **7/7 (100%)**   | 100%      | actuator class broadened + reprioritized over rce ([RESULTS](labs/05-springvault/RESULTS.md)) |
 | 06  | 8       | 0/8 (0%)        | **8/8 (100%)**   | 100%      | +2 infra classes (exposed-service/default-creds) ([RESULTS](labs/06-openservices/RESULTS.md)) |
+| 07  | 8       | 6/8 (75%)       | **8/8 (100%)**   | 100%      | +2 classes (graphql/dos); regression sweep caught a NameError ([RESULTS](labs/07-graphvault/RESULTS.md)) |
 
 Across all labs the **blind pentest found every planted bug on the first
 pass** — the misses were always the *report engine* failing to classify a
 real finding, which is precisely the weakness the answer-key loop is designed
-to expose. **19 engine classes/fixes + a directory-discovery upgrade** shipped
+to expose. **21 engine classes/fixes + a directory-discovery upgrade** shipped
 so far (source-reference mining + redirect-following, so wordlist-blind
 SPA/JSON apps still get fully mapped). The labs also validated the recon
 pipeline beyond plain web: **Java/Spring stack-detection → actuator mining**
@@ -106,9 +108,9 @@ pipeline beyond plain web: **Java/Spring stack-detection → actuator mining**
 
 `jwt` · `2fa-bypass` · `user-enum` · `no-rate-limit` · `mass-assignment` ·
 `weak-crypto` · `session` · `auth` · `xxe` · `deserialization` · `ssti` ·
-`open-redirect` · `bfla` · `excessive-data` · `exposed-service` · `default-creds`
-— plus classifier fixes (title-first classification; tightened `aspnet-leak`;
-`actuator` broadened over `rce`).
+`open-redirect` · `bfla` · `excessive-data` · `exposed-service` · `default-creds` ·
+`graphql` · `dos` — plus classifier fixes (title-first classification; tightened
+`aspnet-leak`; `actuator` broadened + reprioritized over `rce`).
 
 Each lab's `RESULTS.md` documents exactly what the pipeline found, what it
 missed on the first pass, and what was fixed as a result.

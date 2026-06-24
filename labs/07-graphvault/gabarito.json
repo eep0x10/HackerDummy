@@ -1,0 +1,55 @@
+{
+  "lab": "07-graphvault",
+  "base_url": "http://127.0.0.1:18807",
+  "stack": "python-stdlib GraphQL-style API (single /graphql endpoint)",
+  "vulns": [
+    {
+      "id": "G1", "class": "graphql", "severity": "medium", "route": "/graphql",
+      "desc": "Introspection habilitada em produção: a query __schema/__type devolve o schema completo (tipos, campos, mutations) — mapa total da API para o atacante.",
+      "exploit": "POST /graphql {query: '{__schema{types{name fields{name}}}}'} -> schema inteiro, incl. mutations sensíveis.",
+      "points": 1
+    },
+    {
+      "id": "G2", "class": "idor", "severity": "high", "route": "/graphql",
+      "desc": "BOLA via GraphQL: o resolver user(id:) não checa propriedade — qualquer id retorna dados de outro usuário.",
+      "exploit": "POST /graphql {query: '{user(id:1){username email ssn}}'} -> dados de qualquer usuário.",
+      "points": 1
+    },
+    {
+      "id": "G3", "class": "excessive-data", "severity": "high", "route": "/graphql",
+      "desc": "Excessive data exposure: o tipo User expõe campos sensíveis (passwordHash, ssn, apiKey) que o cliente nunca deveria poder consultar.",
+      "exploit": "POST /graphql {query: '{users{username passwordHash ssn apiKey}}'} -> hashes e segredos.",
+      "points": 1
+    },
+    {
+      "id": "G4", "class": "bfla", "severity": "critical", "route": "/graphql",
+      "desc": "BFLA via mutation: a mutation makeAdmin/promoteUser não checa role do chamador — usuário comum se promove a admin.",
+      "exploit": "POST /graphql {query: 'mutation{makeAdmin(username:\"attacker\"){role}}'} -> role=admin.",
+      "points": 1
+    },
+    {
+      "id": "G5", "class": "no-rate-limit", "severity": "medium", "route": "/graphql",
+      "desc": "Sem rate-limiting + query batching/aliases: múltiplas tentativas de login numa única request via aliases (login1, login2, ...) burlam qualquer contagem por-request.",
+      "exploit": "POST /graphql com N aliases de mutation login(password:...) numa request -> brute-force amplificado.",
+      "points": 1
+    },
+    {
+      "id": "G6", "class": "dos", "severity": "medium", "route": "/graphql",
+      "desc": "Sem limite de profundidade/complexidade: query profundamente aninhada (recursiva) é aceita e processada — Denial of Service por exaustão de recurso.",
+      "exploit": "POST /graphql com query aninhada de profundidade 20+ (user->friends->friends->...) -> sem rejeição por depth/complexity.",
+      "points": 1
+    },
+    {
+      "id": "G7", "class": "sqli", "severity": "critical", "route": "/graphql",
+      "desc": "SQL injection através de argumento GraphQL: o arg de search/filter é concatenado direto na query SQL no resolver.",
+      "exploit": "POST /graphql {query: '{search(filter:\"x\\' OR \\'1\\'=\\'1\"){username}}'} -> injeção SQL via GraphQL.",
+      "points": 1
+    },
+    {
+      "id": "G8", "class": "info-disc", "severity": "low", "route": "/graphql",
+      "desc": "Erros verbosos com field suggestions: typo num campo retorna 'Did you mean ...' e tracebacks, vazando nomes de campos/schema mesmo sem introspection.",
+      "exploit": "POST /graphql {query: '{user(id:1){usernam}}'} -> 'Did you mean username?'; entrada inválida -> traceback.",
+      "points": 1
+    }
+  ]
+}
