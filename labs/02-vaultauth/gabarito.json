@@ -1,0 +1,79 @@
+{
+  "lab": "02-vaultauth",
+  "base_url": "http://127.0.0.1:18802",
+  "stack": "python-stdlib + sqlite3 + hand-rolled JWT (hmac/sha256)",
+  "vulns": [
+    {
+      "id": "J1", "class": "jwt", "severity": "critical", "route": "/me",
+      "desc": "JWT com alg:none é aceito sem assinatura — forja de token arbitrário (qualquer sub/role, inclusive admin).",
+      "exploit": "Monte JWT header {\"alg\":\"none\"} payload {\"sub\":\"admin\",\"role\":\"admin\"} e mande em Authorization: Bearer ...  -> /me e /admin aceitam.",
+      "points": 1
+    },
+    {
+      "id": "J2", "class": "jwt", "severity": "critical", "route": "/me",
+      "desc": "JWT HS256 assinado com segredo fraquíssimo ('secret') — crackável em ms (jwt_tool/hashcat) e permite forjar tokens válidos.",
+      "exploit": "hashcat -m 16500 <jwt> rockyou.txt -> 'secret'; reassine {\"sub\":\"admin\",\"role\":\"admin\"} com HS256.",
+      "points": 1
+    },
+    {
+      "id": "J3", "class": "jwt", "severity": "high", "route": "/me",
+      "desc": "A claim 'exp' nunca é validada (tokens não expiram) — token capturado é replayável indefinidamente.",
+      "exploit": "Use um token com exp no passado (ou sem exp) -> /me ainda aceita.",
+      "points": 1
+    },
+    {
+      "id": "A1", "class": "user-enum", "severity": "medium", "route": "/login",
+      "desc": "Enumeração de usuários: mensagens distintas 'no such user' (404) vs 'incorrect password' (401) no /login, e 'username already exists' (409) no /register.",
+      "exploit": "POST /login {username:X} -> 404 se não existe, 401 se existe. Itere uma wordlist de usernames.",
+      "points": 1
+    },
+    {
+      "id": "A2", "class": "no-rate-limit", "severity": "medium", "route": "/login",
+      "desc": "Sem rate-limiting / lockout no /login e /verify-otp — brute-force de senha e de OTP irrestrito.",
+      "exploit": "Loop de milhares de POST /login sem bloqueio; idem OTP (6 dígitos) em /verify-otp.",
+      "points": 1
+    },
+    {
+      "id": "A3", "class": "auth", "severity": "high", "route": "/reset-request",
+      "desc": "Token de reset de senha previsível (inteiro sequencial) E vazado direto no corpo da resposta — takeover de conta de qualquer usuário.",
+      "exploit": "POST /reset-request {username:admin} -> {reset_token:N} no body; POST /reset {token:N,password:novo}.",
+      "points": 1
+    },
+    {
+      "id": "A4", "class": "2fa-bypass", "severity": "high", "route": "/verify-otp",
+      "desc": "Bypass de OTP/2FA: o OTP é devolvido no response do /login ('otp_hint'), aceita o master code '000000', e não tem rate-limit.",
+      "exploit": "POST /login -> otp_hint no body; ou POST /verify-otp {otp:000000} entra em qualquer conta.",
+      "points": 1
+    },
+    {
+      "id": "A5", "class": "mass-assignment", "severity": "high", "route": "/register",
+      "desc": "Mass assignment / escalonamento de privilégio: /register aceita o campo 'role', permitindo criar conta admin.",
+      "exploit": "POST /register {username:evil,password:x,role:admin} -> conta admin; login -> token role=admin.",
+      "points": 1
+    },
+    {
+      "id": "A6", "class": "weak-crypto", "severity": "high", "route": "/debug",
+      "desc": "Armazenamento inseguro de senhas: MD5 sem salt, exposto sem auth em /debug (e em /admin) — quebra trivial das senhas.",
+      "exploit": "GET /debug -> pwmd5 de todos; hashcat -m 0 -> senhas em texto claro.",
+      "points": 1
+    },
+    {
+      "id": "A7", "class": "idor", "severity": "high", "route": "/api/user/1",
+      "desc": "IDOR: GET /api/user/<id> retorna dados de qualquer usuário sem autenticação nem checagem de propriedade.",
+      "exploit": "for i in 1 2 3; do curl /api/user/$i; done -> dados de outros usuários.",
+      "points": 1
+    },
+    {
+      "id": "S2", "class": "session", "severity": "medium", "route": "/logout",
+      "desc": "Logout não invalida o token: JWT stateless sem deny-list, token continua válido após /logout.",
+      "exploit": "Pegue token, POST /logout, reuse o mesmo token em /me -> ainda 200.",
+      "points": 1
+    },
+    {
+      "id": "S3", "class": "session", "severity": "medium", "route": "/login",
+      "desc": "Cookie 'remember-me' previsível = base64(username) — forjável para personificar qualquer usuário.",
+      "exploit": "Set-Cookie remember=YWRtaW4= (base64 'admin'); troque o valor para personificar outro user.",
+      "points": 1
+    }
+  ]
+}
