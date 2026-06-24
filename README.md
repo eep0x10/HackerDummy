@@ -97,9 +97,10 @@ vulns in that lab's answer key.
 | 05 | [SpringVault](labs/05-springvault/) | Java/Spring Boot Actuator (`/env`+`/heapdump` mining, Jolokia, H2 console, cleartext creds) | 7 |
 | 06 | [OpenServices](labs/06-openservices/) | Infra — unauth Redis/Elastic/Mongo/CouchDB/Docker/Memcached/MySQL + default creds | 8 |
 | 07 | [GraphVault](labs/07-graphvault/) | GraphQL (introspection, BOLA, excessive data, BFLA, batching, depth DoS, SQLi, field suggestions) | 8 |
+| 08 | [TrustEdge](labs/08-trustedge/) | Trust-boundary / header misconfig (CORS reflection, Host-header injection, X-Forwarded-Host, CRLF response splitting, cache poisoning) | 7 |
 
-**66 planted vulnerabilities across 7 labs.** More on the way (client-side,
-cloud-metadata SSRF, native deserialization).
+**73 planted vulnerabilities across 8 labs.** More on the way (cloud-metadata
+SSRF, native deserialization, request smuggling).
 
 ## Using it for fine-tuning
 
@@ -130,6 +131,7 @@ took the agent from the baselines below to 100% recall:
 | 05 SpringVault | 71% | **100%** | management-interface vs RCE classification |
 | 06 OpenServices | 0% | **100%** | no infra (exposed-service / default-creds) vocabulary |
 | 07 GraphVault | 75% | **100%** | missing GraphQL-introspection / DoS classes |
+| 08 TrustEdge | 14% | **100%** | no header-trust vocabulary (CORS / Host / CRLF / cache) |
 
 That loop — *measure → find the blind spot → fix → re-measure* — is exactly what
 PentestBench is for, whatever agent you bring.

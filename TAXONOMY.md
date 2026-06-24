@@ -30,6 +30,10 @@ brute force).
 | `stored-xss` | Stored/persistent XSS |
 | `open-redirect` | Unvalidated redirect |
 | `clickjacking` | Missing frame protection (X-Frame-Options / frame-ancestors) |
+| `cors-misconfig` | Permissive CORS (reflected/`null`/wildcard origin + credentials) |
+| `host-header-injection` | Host / X-Forwarded-Host trusted into links/redirects (reset poisoning) |
+| `crlf` | CRLF injection / HTTP response splitting |
+| `cache-poisoning` | Web cache poisoning via unkeyed header |
 
 ## Access control & authorization
 | key | meaning |

