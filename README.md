@@ -77,6 +77,7 @@ It matches by **class + route** and prints `ENCONTRADAS` (matched),
 |----|------------|------------------------|---------|-----------------------------------------------------------------|
 | 01 | [VulnShop](labs/01-vulnshop/) | Python stdlib + sqlite3 | 15 | Classic OWASP web set: SQLi, XSS (reflected+stored), IDOR, SSRF, open redirect, exposed `.git`/`.env`/backup, dir-listing, headers, cookie, info-disclosure, unauth admin. |
 | 02 | [VaultAuth](labs/02-vaultauth/) | Python stdlib + hand-rolled JWT | 12 | Auth/identity API: JWT `alg:none` + weak secret + no-`exp`, user enumeration, no rate-limiting, OTP/2FA bypass, mass-assignment priv-esc, unsalted-MD5 storage, IDOR, broken session (logout/remember-me). |
+| 03 | [RelayKit](labs/03-relaykit/) | Python stdlib | 7 | Server-side exploitation: SSRF (+ filter bypass), XXE (file read/SSRF), insecure deserialization, OS command injection, path traversal/LFI, SSTI. Dangerous primitives are confirmable but execution-blocked by design. |
 
 *(more labs incoming — API/BOLA, Java/Spring actuator, infra/services)*
 
@@ -86,11 +87,14 @@ It matches by **class + route** and prints `ENCONTRADAS` (matched),
 |-----|---------|-----------------|--------------|-----------|------------|
 | 01  | 15      | 12/15 (80%)     | **15/15 (100%)** | 93% (1 bonus, 0 FP) | 3 classifier bugs ([RESULTS](labs/01-vulnshop/RESULTS.md)) |
 | 02  | 12      | 1/12 (8%)       | **12/12 (100%)** | 100%      | +8 auth/JWT/session classes ([RESULTS](labs/02-vaultauth/RESULTS.md)) |
+| 03  | 7       | 4/7 (57%)       | **7/7 (100%)**   | 100%      | +3 server-side classes (xxe/deser/ssti) ([RESULTS](labs/03-relaykit/RESULTS.md)) |
 
-Across both labs the **blind pentest found every planted bug on the first
+Across all labs the **blind pentest found every planted bug on the first
 pass** — the misses were always the *report engine* failing to classify a
 real finding, which is precisely the weakness the answer-key loop is designed
-to expose. 11 engine improvements shipped so far.
+to expose. **14 engine classes/fixes + a directory-discovery upgrade** shipped
+so far (source-reference mining + redirect-following, so wordlist-blind
+SPA/JSON apps still get fully mapped).
 
 Each lab's `RESULTS.md` documents exactly what the pipeline found, what it
 missed on the first pass, and what was fixed as a result.
