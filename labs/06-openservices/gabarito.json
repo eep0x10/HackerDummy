@@ -1,0 +1,55 @@
+{
+  "lab": "06-openservices",
+  "base_url": "127.0.0.1",
+  "stack": "infra / exposed network services (stdlib TCP mocks on standard ports)",
+  "vulns": [
+    {
+      "id": "I1", "class": "exposed-service", "severity": "high", "route": "127.0.0.1:6379",
+      "desc": "Redis exposto sem autenticação (porta 6379) — leitura/escrita total; RCE via cron/module/SSH key writes.",
+      "exploit": "redis-cli -h 127.0.0.1 INFO / CONFIG GET dir -> sem AUTH; KEYS * dump.",
+      "points": 1
+    },
+    {
+      "id": "I2", "class": "exposed-service", "severity": "high", "route": "127.0.0.1:9200",
+      "desc": "Elasticsearch exposto sem auth e desatualizado (1.4.2 — CVE-2015-1427 RCE via Groovy). Dump total de índices.",
+      "exploit": "curl 127.0.0.1:9200/_cat/indices ; curl 127.0.0.1:9200/<idx>/_search -> dados sem auth.",
+      "points": 1
+    },
+    {
+      "id": "I3", "class": "exposed-service", "severity": "high", "route": "127.0.0.1:27017",
+      "desc": "MongoDB exposto sem autenticação (porta 27017) — dump total de coleções.",
+      "exploit": "mongo 127.0.0.1:27017 -> show dbs; sem credenciais.",
+      "points": 1
+    },
+    {
+      "id": "I4", "class": "exposed-service", "severity": "high", "route": "127.0.0.1:5984",
+      "desc": "CouchDB em 'admin party' (porta 5984) — qualquer um é admin; CVE-2017-12635 priv-esc/RCE.",
+      "exploit": "curl 127.0.0.1:5984/_all_dbs ; criar admin -> RCE.",
+      "points": 1
+    },
+    {
+      "id": "I5", "class": "exposed-service", "severity": "critical", "route": "127.0.0.1:2375",
+      "desc": "Docker Engine API exposta sem TLS (porta 2375) — RCE trivial / container escape (montar / do host num container).",
+      "exploit": "curl 127.0.0.1:2375/version ; docker -H tcp://127.0.0.1:2375 run -v /:/host ... -> RCE no host.",
+      "points": 1
+    },
+    {
+      "id": "I6", "class": "exposed-service", "severity": "medium", "route": "127.0.0.1:11211",
+      "desc": "Memcached exposto sem auth (porta 11211) — leitura de cache (tokens/sessões) e amplification UDP.",
+      "exploit": "echo stats | nc 127.0.0.1 11211 ; stats items / get <key>.",
+      "points": 1
+    },
+    {
+      "id": "I7", "class": "exposed-service", "severity": "high", "route": "127.0.0.1:3306",
+      "desc": "MySQL exposto na rede (porta 3306), versão EOL 5.5.x — alvo de brute root, INTO OUTFILE webshell.",
+      "exploit": "mysql -h 127.0.0.1 -u root ; banner revela 5.5.62 (EOL).",
+      "points": 1
+    },
+    {
+      "id": "I8", "class": "default-creds", "severity": "high", "route": "127.0.0.1:8080",
+      "desc": "Painel admin HTTP (porta 8080) aceita credenciais padrão admin/admin.",
+      "exploit": "curl -u admin:admin 127.0.0.1:8080/admin -> acesso administrativo.",
+      "points": 1
+    }
+  ]
+}
