@@ -79,8 +79,9 @@ It matches by **class + route** and prints `ENCONTRADAS` (matched),
 | 02 | [VaultAuth](labs/02-vaultauth/) | Python stdlib + hand-rolled JWT | 12 | Auth/identity API: JWT `alg:none` + weak secret + no-`exp`, user enumeration, no rate-limiting, OTP/2FA bypass, mass-assignment priv-esc, unsalted-MD5 storage, IDOR, broken session (logout/remember-me). |
 | 03 | [RelayKit](labs/03-relaykit/) | Python stdlib | 7 | Server-side exploitation: SSRF (+ filter bypass), XXE (file read/SSRF), insecure deserialization, OS command injection, path traversal/LFI, SSTI. Dangerous primitives are confirmable but execution-blocked by design. |
 | 04 | [ShopAPI](labs/04-shopapi/) | Python stdlib JSON API + JWT | 9 | OWASP API Top 10: BOLA (object), BFLA (function), mass-assignment, excessive data exposure, JWT alg:none/weak-secret, missing rate-limiting, SSRF, verbose errors. |
+| 05 | [SpringVault](labs/05-springvault/) | Java/Spring Boot (stdlib mock) | 7 | Spring Boot Actuator exposed: `/env` + `/heapdump` secret mining, Jolokia (JMX→RCE), H2 console (RCE), cleartext creds, Whitelabel/stack-trace disclosure. Tests stack-detection → signal → mining on a non-Python stack. |
 
-*(more labs incoming — Java/Spring actuator, infra/services)*
+*(more labs incoming — infra/services)*
 
 ## Results so far
 
@@ -90,13 +91,15 @@ It matches by **class + route** and prints `ENCONTRADAS` (matched),
 | 02  | 12      | 1/12 (8%)       | **12/12 (100%)** | 100%      | +8 auth/JWT/session classes ([RESULTS](labs/02-vaultauth/RESULTS.md)) |
 | 03  | 7       | 4/7 (57%)       | **7/7 (100%)**   | 100%      | +3 server-side classes (xxe/deser/ssti) ([RESULTS](labs/03-relaykit/RESULTS.md)) |
 | 04  | 9       | 6/9 (67%)       | **9/9 (100%)**   | 100%      | +2 API classes (bfla/excessive-data) ([RESULTS](labs/04-shopapi/RESULTS.md)) |
+| 05  | 7       | 5/7 (71%)       | **7/7 (100%)**   | 100%      | actuator class broadened + reprioritized over rce ([RESULTS](labs/05-springvault/RESULTS.md)) |
 
 Across all labs the **blind pentest found every planted bug on the first
 pass** — the misses were always the *report engine* failing to classify a
 real finding, which is precisely the weakness the answer-key loop is designed
-to expose. **16 engine classes/fixes + a directory-discovery upgrade** shipped
+to expose. **17 engine classes/fixes + a directory-discovery upgrade** shipped
 so far (source-reference mining + redirect-following, so wordlist-blind
-SPA/JSON apps still get fully mapped).
+SPA/JSON apps still get fully mapped). Lab 05 also validated the **stack-detection
+→ signal → secret-mining** pipeline on a non-Python (Java/Spring) stack.
 
 Each lab's `RESULTS.md` documents exactly what the pipeline found, what it
 missed on the first pass, and what was fixed as a result.

@@ -1,0 +1,49 @@
+{
+  "lab": "05-springvault",
+  "base_url": "http://127.0.0.1:18805",
+  "stack": "Java / Spring Boot (stdlib mock with faithful fingerprints)",
+  "vulns": [
+    {
+      "id": "SP1", "class": "actuator", "severity": "high", "route": "/actuator",
+      "desc": "Spring Boot Actuator com exposure=* — /actuator lista todos os endpoints de gestão sem autenticação.",
+      "exploit": "GET /actuator -> _links com env, heapdump, mappings, configprops, beans, threaddump.",
+      "points": 1
+    },
+    {
+      "id": "SP2", "class": "actuator", "severity": "critical", "route": "/actuator/env",
+      "desc": "/actuator/env expõe propriedades de configuração — datasource password, jwt secret, stripe/aws keys em texto claro.",
+      "exploit": "GET /actuator/env -> spring.datasource.password, app.jwt.secret, stripe.api.key, aws.accessKeyId.",
+      "points": 1
+    },
+    {
+      "id": "SP3", "class": "actuator", "severity": "critical", "route": "/actuator/heapdump",
+      "desc": "/actuator/heapdump baixa o dump de memória (.hprof) — strings de secret em runtime (DB pwd, JWT, Bearer de sessão admin).",
+      "exploit": "GET /actuator/heapdump -> strings: spring.datasource.password, Authorization Bearer admin, jwt secret.",
+      "points": 1
+    },
+    {
+      "id": "SP4", "class": "actuator", "severity": "critical", "route": "/jolokia",
+      "desc": "/jolokia (JMX sobre HTTP) exposto — leitura/invocação de MBeans, incluindo logback reloadByURL (vetor de RCE via JNDI/deserialization).",
+      "exploit": "GET /jolokia/list -> MBeans; reloadByURL aponta logback config para URL atacante -> RCE.",
+      "points": 1
+    },
+    {
+      "id": "SP5", "class": "actuator", "severity": "high", "route": "/h2-console",
+      "desc": "/h2-console (console web do H2) exposto — JDBC URL controlável permite CREATE ALIAS ... que executa código (RCE).",
+      "exploit": "GET /h2-console -> form de conexão; JDBC URL malicioso (CREATE ALIAS exec) -> RCE.",
+      "points": 1
+    },
+    {
+      "id": "SP6", "class": "creds", "severity": "critical", "route": "/actuator/env",
+      "desc": "Credenciais em texto claro acessíveis via actuator (datasource password, jwt secret, stripe/aws keys) — loot extraído de env e heapdump.",
+      "exploit": "Minerar /actuator/env + /actuator/heapdump -> credenciais de produção reutilizáveis.",
+      "points": 1
+    },
+    {
+      "id": "SP7", "class": "info-disc", "severity": "medium", "route": "*",
+      "desc": "Whitelabel Error Page e stack traces Java verbosos expõem versão do Spring Boot (2.6.6), pacotes internos (com.vault.api), e detalhes de implementação.",
+      "exploit": "GET / (Whitelabel + 'Spring Boot 2.6.6') ou /account (stack trace Java completo).",
+      "points": 1
+    }
+  ]
+}
