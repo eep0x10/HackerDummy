@@ -41,6 +41,7 @@ of that class on the host matches).
 """
 import argparse
 import json
+import re
 import os
 import sys
 from pathlib import Path
@@ -58,12 +59,21 @@ _LABEL_KEYS = ("title", "vuln", "vulnerability", "name", "type", "desc", "descri
 _LOC_KEYS = ("route", "url", "endpoint", "path", "location", "host", "target")
 
 
+def _norm_route(p):
+    """Normalize a route for matching: drop query, lowercase, and collapse
+    path-param segments (numeric id, <id>, :id, {id}) to '*' so /api/user/1
+    and /api/user/<id> match."""
+    p = str(p).split("?")[0].split("#")[0].rstrip("/").lower()
+    p = re.sub(r"/(\d+|<[^>]*>|:[\w-]+|\{[\w-]+\})(?=/|$|\s|[)\];,])", "/*", p)
+    return p
+
+
 def _route_match(vuln_route, finding_routes):
     if vuln_route in ("*", "/", ""):
         return True  # host-level: any finding of this class matches
-    vr = str(vuln_route).split("?")[0].rstrip("/").lower()
+    vr = _norm_route(vuln_route)
     for r in finding_routes:
-        rr = str(r).split("?")[0].rstrip("/").lower()
+        rr = _norm_route(r)
         if not rr:
             continue
         if vr and (vr in rr or rr.endswith(vr) or (len(rr) >= 4 and rr in vr)):

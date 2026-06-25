@@ -98,8 +98,10 @@ vulns in that lab's answer key.
 | 06 | [OpenServices](labs/06-openservices/) | Infra — unauth Redis/Elastic/Mongo/CouchDB/Docker/Memcached/MySQL + default creds | 8 |
 | 07 | [GraphVault](labs/07-graphvault/) | GraphQL (introspection, BOLA, excessive data, BFLA, batching, depth DoS, SQLi, field suggestions) | 8 |
 | 08 | [TrustEdge](labs/08-trustedge/) | Trust-boundary / header misconfig (CORS reflection, Host-header injection, X-Forwarded-Host, CRLF response splitting, cache poisoning) | 7 |
+| 09 | [InjectArena](labs/09-injectarena/) | Beyond-SQL injection (NoSQL operator, LDAP, XPath, SSI, CSV/formula) | 5 |
+| 10 | [UploadForge](labs/10-uploadforge/) | File-upload surface — unrestricted upload → webshell → RCE, default-creds chain, traversal read, SVG stored-XSS, IDOR | 7 |
 
-**73 planted vulnerabilities across 8 labs.** More on the way (cloud-metadata
+**85 planted vulnerabilities across 10 labs.** More on the way (cloud-metadata
 SSRF, native deserialization, request smuggling).
 
 ## Using it for fine-tuning
@@ -132,9 +134,13 @@ took the agent from the baselines below to 100% recall:
 | 06 OpenServices | 0% | **100%** | no infra (exposed-service / default-creds) vocabulary |
 | 07 GraphVault | 75% | **100%** | missing GraphQL-introspection / DoS classes |
 | 08 TrustEdge | 14% | **100%** | no header-trust vocabulary (CORS / Host / CRLF / cache) |
+| 09 InjectArena | 0% | **100%** | no NoSQL/LDAP/XPath/SSI/CSV-injection classes |
+| 10 UploadForge | 86% | **100%** | upload→RCE detected but classified `rce`; `upload` must beat generic `rce` |
 
 That loop — *measure → find the blind spot → fix → re-measure* — is exactly what
-PentestBench is for, whatever agent you bring.
+PentestBench is for, whatever agent you bring. The pattern held in all ten labs:
+**the agent detects nearly everything on the first pass; the gap is its report
+engine failing to *name/classify* what it found.**
 
 ## Repo layout
 

@@ -1,0 +1,70 @@
+{
+  "lab": "10-uploadforge",
+  "base_url": "http://127.0.0.1:18810",
+  "stack": "python-stdlib document/avatar upload service",
+  "vulns": [
+    {
+      "id": "U1",
+      "class": "upload",
+      "severity": "critical",
+      "route": "/upload",
+      "desc": "Unrestricted file upload -> webshell -> RCE. POST /upload (authenticated) saves the file with NO extension/MIME/magic-byte validation. An uploaded template is then rendered server-side by GET /render?doc=<name>, executing {{exec:<cmd>}} -> remote code execution. This is the full upload->webshell->RCE chain; class is 'upload' (RCE is the impact).",
+      "exploit": "POST /login {operator/operator} -> token. POST /upload a file 'shell.tpl' with body '{{exec:whoami}}'. GET /render?doc=shell.tpl with the session -> command output in response (RCE).",
+      "points": 1
+    },
+    {
+      "id": "U2",
+      "class": "default-creds",
+      "severity": "high",
+      "route": "/login",
+      "desc": "Default credentials never rotated: operator/operator grants an authenticated session (the entry point of the upload->RCE chain). Hinted in the / index ('operator onboarding uses the default operator/operator login until rotated').",
+      "exploit": "POST /login {\"username\":\"operator\",\"password\":\"operator\"} -> 200 + session token/cookie.",
+      "points": 1
+    },
+    {
+      "id": "U3",
+      "class": "lfi",
+      "severity": "high",
+      "route": "/files",
+      "desc": "Path traversal (read) in the download endpoint: GET /files?name=<n> does os.path.join(uploads, name) with no normalization, so ../ escapes the uploads dir and reads arbitrary host files (e.g. the planted server-secrets.txt, /etc/passwd, app source).",
+      "exploit": "GET /files?name=../server-secrets.txt -> internal token/flag. GET /files?name=../app.py -> source.",
+      "points": 1
+    },
+    {
+      "id": "U4",
+      "class": "stored-xss",
+      "severity": "high",
+      "route": "/view",
+      "desc": "Stored XSS via uploaded SVG/HTML: an uploaded .svg/.html is persisted and later served by GET /view?id=<n> with Content-Type text/html, so embedded <script> executes in the victim's browser. Classic upload-driven stored XSS (no output encoding, attacker-controlled content-type).",
+      "exploit": "Upload 'x.svg' containing <svg xmlns=...><script>alert(document.domain)</script></svg>. GET /view?id=<id> -> served as text/html, script runs.",
+      "points": 1
+    },
+    {
+      "id": "U5",
+      "class": "idor",
+      "severity": "medium",
+      "route": "/view",
+      "desc": "IDOR on uploaded objects: GET /view?id=<sequential int> returns ANY user's uploaded file with no ownership check and no auth required. Enumerate ids to read other users' (incl. admin's) documents.",
+      "exploit": "GET /view?id=1 (admin's file) with no session, then id=2,3,... to read everyone's uploads.",
+      "points": 1
+    },
+    {
+      "id": "U6",
+      "class": "info-disc",
+      "severity": "medium",
+      "route": "*",
+      "desc": "Security misconfiguration (app-wide): debug mode on -> unhandled input returns a full Python traceback in the response body (reproducible e.g. GET /view?id=abc -> ValueError stack trace). Leaks source paths and internals.",
+      "exploit": "GET /view?id=notanint -> 500 with full traceback.",
+      "points": 1
+    },
+    {
+      "id": "U7",
+      "class": "headers",
+      "severity": "low",
+      "route": "*",
+      "desc": "Missing security headers across all responses: no Content-Security-Policy, no X-Frame-Options/frame-ancestors (clickjacking), no X-Content-Type-Options, no HSTS. Amplifies the stored-XSS and content-type-sniffing issues.",
+      "exploit": "curl -I any endpoint -> none of CSP/XFO/XCTO/HSTS present.",
+      "points": 1
+    }
+  ]
+}

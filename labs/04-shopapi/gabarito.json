@@ -4,55 +4,82 @@
   "stack": "python-stdlib JSON REST API + hand-rolled JWT",
   "vulns": [
     {
-      "id": "B1", "class": "idor", "severity": "high", "route": "/api/v1/orders/1",
+      "id": "B1",
+      "class": "idor",
+      "severity": "high",
+      "route": "/api/v1/orders/1",
       "desc": "BOLA (Broken Object Level Authorization): GET /api/v1/orders/<id> retorna o pedido de qualquer usuário — só exige token válido, não checa dono do objeto.",
       "exploit": "Logue como user comum, GET /api/v1/orders/1..N com seu Bearer -> pedidos de outros usuários.",
       "points": 1
     },
     {
-      "id": "B2", "class": "idor", "severity": "high", "route": "/api/v1/users/1",
+      "id": "B2",
+      "class": "idor",
+      "severity": "high",
+      "route": "/api/v1/users/1",
       "desc": "BOLA em PII: GET /api/v1/users/<id> devolve dados de qualquer usuário (email, endereço) sem checar propriedade.",
       "exploit": "GET /api/v1/users/1..N com qualquer Bearer -> PII de todos.",
       "points": 1
     },
     {
-      "id": "B3", "class": "bfla", "severity": "critical", "route": "/api/v1/admin/promote",
+      "id": "B3",
+      "class": "bfla",
+      "severity": "critical",
+      "route": "/api/v1/admin/promote",
       "desc": "BFLA (Broken Function Level Authorization): POST /api/v1/admin/promote é função admin mas NÃO checa role — um usuário comum se promove a admin.",
       "exploit": "Como user comum: POST /api/v1/admin/promote {username:<eu>,role:admin} com Bearer de user -> vira admin.",
       "points": 1
     },
     {
-      "id": "B4", "class": "mass-assignment", "severity": "high", "route": "/api/v1/me",
+      "id": "B4",
+      "class": "mass-assignment",
+      "severity": "high",
+      "route": "/api/v1/me",
       "desc": "Mass assignment: PATCH /api/v1/me aceita campos privilegiados (role/is_admin) no body, escalando privilégio do próprio usuário.",
       "exploit": "PATCH /api/v1/me {role:admin} (ou is_admin:true) com Bearer de user -> conta vira admin.",
       "points": 1
     },
     {
-      "id": "B5", "class": "excessive-data", "severity": "high", "route": "/api/v1/users",
+      "id": "B5",
+      "class": "excessive-data",
+      "severity": "high",
+      "route": "/api/v1/users",
       "desc": "Excessive Data Exposure: GET /api/v1/users devolve campos sensíveis demais (password_hash, ssn, internal_notes) que o cliente nunca deveria ver.",
       "exploit": "GET /api/v1/users -> cada objeto inclui password_hash + ssn + internal_notes.",
       "points": 1
     },
     {
-      "id": "B6", "class": "no-rate-limit", "severity": "medium", "route": "/api/v1/login",
+      "id": "B6",
+      "class": "no-rate-limit",
+      "severity": "medium",
+      "route": "/api/v1/login",
       "desc": "Lack of Resources & Rate Limiting: POST /api/v1/login sem throttle/lockout — brute-force/credential-stuffing irrestrito.",
       "exploit": "Loop de POST /api/v1/login sem bloqueio nem atraso.",
       "points": 1
     },
     {
-      "id": "B7", "class": "ssrf", "severity": "high", "route": "/api/v1/avatar",
+      "id": "B7",
+      "class": "ssrf",
+      "severity": "high",
+      "route": "/api/v1/avatar",
       "desc": "SSRF: POST /api/v1/avatar {url} faz fetch server-side da URL fornecida (importar avatar remoto) sem validar destino.",
       "exploit": "POST /api/v1/avatar {url:http://127.0.0.1:18804/api/v1/internal/config} -> alcança serviço interno.",
       "points": 1
     },
     {
-      "id": "B8", "class": "jwt", "severity": "critical", "route": "/api/v1/me",
+      "id": "B8",
+      "class": "jwt",
+      "severity": "critical",
+      "route": "*",
       "desc": "Broken auth via JWT: aceita alg:none (sem assinatura) e HS256 com segredo fraco — forja de token admin.",
       "exploit": "Forje JWT {alg:none}{sub:admin,role:admin} -> /api/v1/me e funções admin aceitam.",
       "points": 1
     },
     {
-      "id": "B9", "class": "info-disc", "severity": "medium", "route": "*",
+      "id": "B9",
+      "class": "info-disc",
+      "severity": "medium",
+      "route": "*",
       "desc": "Security Misconfiguration (app-wide): entrada malformada/tipo inesperado dispara traceback Python completo no corpo da resposta (reproduzível em /api/v1/orders, /api/v1/avatar, etc. — debug ligado em produção, não é específico de rota).",
       "exploit": "POST /api/v1/orders (ou /avatar) com body JSON inválido / tipo errado -> stack trace completo no response.",
       "points": 1

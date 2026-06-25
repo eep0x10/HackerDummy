@@ -24,15 +24,23 @@ import re
 
 # (regex, canonical_class_key) — first match wins.
 TAXONOMY = [
+    (r"nosql.?inj|no-?sql inj|mongo.*inject|inject.*mongo|operator injection|nosql.*operator", "nosqli"),
+    (r"ldap inject|ldap.?injection|inje[cç].*ldap", "ldap-injection"),
+    (r"xpath inject|xpath.?injection|inje[cç].*xpath", "xpath-injection"),
+    (r"\bssi\b\s*(injection|inject)|server.?side include|\.shtml|edge.?side include", "ssi-injection"),
+    (r"csv inject|formula inject|csv.*formula|formula.*csv|spreadsheet inject", "csv-injection"),
     (r"sql.?inj|sqli|union.?based|boolean.?based|error.?based|inje[cç].*sql", "sqli"),
     (r"\bactuator\b|spring boot actuator|jolokia|h2[\s-]?console|heapdump|jmx[\s-]?(http|over|console|exposed)", "actuator"),
+    # upload before rce: an unrestricted-upload finding is class 'upload' even when the
+    # title states the RCE impact ("File Upload -> RCE / webshell"). Pure command-injection
+    # RCE has no upload words and falls through to 'rce'.
+    (r"file.?upload|unrestricted upload|arbitrary file|webshell|polyglot|upload.*(shell|arbitr|malicios|webshell|rce|remote code|execu)", "upload"),
     (r"\brce\b|remote code|command inj|os command|code execution|inje[cç].*comando", "rce"),
     (r"\bxxe\b|xml external entit|external general entit|external.*entity injection", "xxe"),
     (r"deserializ|desserializ|insecure.*deserial|unsafe.*(pickle|unpickle|unserialize|marshal)|pickle.*load|object injection|__reduce__|unmarshal", "deserialization"),
     (r"\bssti\b|server.?side template inject|template injection|expression language inject", "ssti"),
     (r"\bssrf\b|server.?side request", "ssrf"),
     (r"\blfi\b|local file incl|path traversal|directory traversal|file inclusion", "lfi"),
-    (r"file upload|unrestricted upload|upload.*(shell|arbitr|malicios)|webshell", "upload"),
     (r"stored xss|persistent xss|xss armazenad", "stored-xss"),
     (r"reflect.*xss|xss reflet|cross.?site script|reflected.*script|\bxss\b", "xss"),
     (r"\bidor\b|insecure direct object|broken object level|\bbola\b|refer[eê]ncia direta", "idor"),
@@ -44,7 +52,7 @@ TAXONOMY = [
     (r"rate.?limit|brute.?force|for[çc]a bruta|no lockout|account lockout|excessive.*(attempts|requests)|throttl", "no-rate-limit"),
     (r"mass.?assignment|mass-assign|auto.?bind|over.?post|autobinding", "mass-assignment"),
     (r"unsalted|\bmd5\b|\bsha1\b|weak.*(hash|crypto|cipher)|insecure.*(password storage|hash)|plaintext password|sem salt", "weak-crypto"),
-    (r"session fixation|session.*(not invalidat|never.*expir|fixa)|not invalidated.*(session|token|logout)|predictable.*(session|remember|cookie)|remember.?me", "session"),
+    (r"session fixation|session.*(not invalidat|never.*expir|without expir|no expir|does not expir|fixa)|(token|session).*(without expir|no expir|never expir|no invalidation|no logout)|not invalidated.*(session|token|logout)|no logout endpoint|predictable.*(session|remember|cookie)|remember.?me", "session"),
     (r"password reset|reset token|broken authentication|weak.*(password )?recovery|account takeover|forgot password", "auth"),
     (r"(exposed|expos[ti]\w*).*(redis|elasticsearch|elastic|mongodb|mongo|couchdb|couch|docker|memcached|mysql|postgres|mssql|kibana|jenkins|rabbitmq|kafka|zookeeper|\bftp\b|telnet|\bsmb\b|\brdp\b|\bvnc\b|\bnfs\b|ldap)|(redis|elasticsearch|mongodb|couchdb|memcached|docker (engine )?api).*(no auth|without auth|sem auth|admin party|unauthenticated|exposed)|unauthenticated (network )?service|admin party", "exposed-service"),
     (r"default credential|default password|credenciais? padr[aã]o|senha padr[aã]o|admin/admin|weak default|default login|hardcoded credential|no password set", "default-creds"),
@@ -57,7 +65,7 @@ TAXONOMY = [
     (r"open.?redirect|unvalidated redirect|redirect.*unvalidat|url redirection|redirect.*untrusted", "open-redirect"),
     (r"\.git\b|git.?expos|svn.?expos|reposit[oó]rio.*expos|source.*repo|version.?control.*expos", "scm"),
     (r"web\.config|connection string|machinekey|appsettings.*secret", "web-config"),
-    (r"backup.*(dir|expos|arquivo|file)|\bbkp\b|\.bak\b|dump.*expos|sql.?dump|database backup", "backup"),
+    (r"backup.*(dir|expos|arquivo|file)|\bbkp\b|\.bak\b|dump.*expos|sql.?dump|database (backup|dump)|\.sql\b.*(expos|public|access)", "backup"),
     (r"directory listing|index of|listagem de diret|autoindex", "dir-listing"),
     (r"phpinfo", "phpinfo"),
     (r"admin panel|painel admin|management interface|interface de gerenc|phpmyadmin|tomcat manager|unauth.*admin", "admin-panel"),
@@ -68,6 +76,7 @@ TAXONOMY = [
     (r"\beol\b|end.?of.?life|outdated|unsupported|sem patches|out of date|legacy.*version|fim de vida", "eol"),
     (r"version disclos|disclosure de vers|vers[aã]o.*expos|x-aspnet-version|x-powered-by|software.*banner", "version"),
     (r"credential|senhas|password.*file|creds.*expos|plaintext.*pass|cred.*expos|arquivo.*senha|\.env\b|secrets?.*(expos|leak)|api.?key.*(expos|leak)", "creds"),
+    (r"missing authentication|no authentication required|unauthenticated access|authentication not required|broken access control|missing authoriz|missing object.?level author", "idor"),
     (r"info.*disclos|information disclosure|path disclos|internal path|caminho.*interno|vazamento|verbose error|erro verboso|stack.?trace|traceback|debug mode|field suggestion|unhandled exception", "info-disc"),
 ]
 

