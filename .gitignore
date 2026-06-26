@@ -3,6 +3,7 @@ __pycache__/
 *.pyo
 *.log
 _server.*.log
+.lab_logs/
 .DS_Store
 # runtime upload storage (apps regenerate seed files on startup; never ship test uploads)
 labs/*/uploads/
