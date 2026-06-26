@@ -79,6 +79,8 @@ TAXONOMY = [
     (r"android:debuggable|\bdebuggable\b|debug flag.*(true|enabled|on)|app.*debuggable", "debuggable"),
     (r"android:exported|exported (activity|service|receiver|provider|component)|(activity|service|receiver|provider|content provider).*(exported|no permission|without permission|sem permiss)|exported.*(component|without.*permission|no.?permission)|improperly exported", "exported-component"),
     (r"usescleartexttraffic|cleartexttrafficpermitted|cleartext traffic|clear.?text traffic|network.?security.?config.*(cleartext|permit|http)|cleartext.*(permitted|allowed|enabled|traffic|connection|http)|unencrypted (http|traffic|connection)", "cleartext-traffic"),
+    (r"x509trustmanager|trust.?manager.*(empty|all|accept|trust.?all|no.?op)|trustallcerts|checkservertrusted.*(empty|return|nothing|no.?valid|does not)|allow.?all.?hostname|hostnameverifier.*(allow.?all|return true|always true|true for (all|any))|(ssl|tls|certificate|cert).*(pinning|validation).*(missing|absent|disabled|bypass|none|not (implement|enforc|valid))|accepts? (all|any) (cert|certificate)|trust.?all.*(cert|certificate)|(no|missing|disabled|absent) (certificate|cert|ssl|tls) (validation|pinning|check)|missing (certificate |cert )?pinning", "improper-tls"),
+    (r"webview|addjavascriptinterface|javascriptinterface|setjavascriptenabled|setallowfileaccess|allowfileaccessfromfileurls|allowuniversalaccessfromfileurls|js bridge|javascript bridge|file.?url.*(webview|access)", "webview"),
     (r"backup.*(dir|expos|arquivo|file)|\bbkp\b|\.bak\b|dump.*expos|sql.?dump|database (backup|dump)|\.sql\b.*(expos|public|access)", "backup"),
     (r"directory listing|index of|listagem de diret|autoindex", "dir-listing"),
     (r"phpinfo", "phpinfo"),

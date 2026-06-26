@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- NetForge — INTENTIONALLY VULNERABLE Android app (decompiled apktool form).
+     Theme: broken TLS trust + dangerous WebView. Training only. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.netforge.app"
+    android:versionCode="5"
+    android:versionName="3.0">
+
+    <uses-sdk android:minSdkVersion="23" android:targetSdkVersion="31" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme">
+
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- exported WebView host: loads a URL taken straight from the incoming
+             intent, and is BROWSABLE (any web page can fire netforge://open?url=) -->
+        <activity
+            android:name=".WebViewActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="netforge" android:host="open" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

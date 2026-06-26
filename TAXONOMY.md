@@ -91,6 +91,8 @@ brute force).
 | `backup-allowed` | `android:allowBackup="true"` — private app data extractable via `adb backup` |
 | `exported-component` | Activity/Service/Receiver/Provider exported without permission (IPC abuse) |
 | `cleartext-traffic` | Cleartext HTTP permitted (`usesCleartextTraffic` / network-security-config) |
+| `improper-tls` | Broken TLS trust — trust-all `X509TrustManager`, allow-all hostname verifier, missing pinning |
+| `webview` | Dangerous WebView — `addJavascriptInterface` bridge + file access + attacker-controlled `loadUrl` |
 | `insecure-storage` | Sensitive data at rest in cleartext (world-readable SharedPreferences, unencrypted SQLite/PII) |
 | `sensitive-log` | Sensitive data (token/PII/PAN) written to logcat (`Log.d`/`Log.v`) |
 
