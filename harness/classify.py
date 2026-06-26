@@ -61,6 +61,7 @@ TAXONOMY = [
     (r"default credential|default password|credenciais? padr[aã]o|senha padr[aã]o|admin/admin|weak default|default login|hardcoded credential|no password set", "default-creds"),
     (r"cors (misconfig|misconfiguration)|cross.?origin.*(misconfig|reflect|wildcard|null origin)|access.?control.?allow.?origin.*(reflect|\*|null)|origin.*reflect.*credential|\bcors\b.*(reflect|null origin|wildcard|credential)", "cors-misconfig"),
     (r"host header (injection|poison)|host.?header.?injection|x-forwarded-host|password reset poison|reset.*link.*host|host header.*(trust|inject|reset)", "host-header-injection"),
+    (r"\bsmuggl|request smuggl|response smuggl|\bcl\.?te\b|\bte\.?cl\b|\bte\.?te\b|http desync|request desync|chunked.*content.?length.*(conflict|desync|smuggl)", "smuggling"),
     (r"\bcrlf\b|response splitting|http response split|carriage return.*line feed|cr.?lf inject|header inject.*(crlf|newline|response)", "crlf"),
     (r"cache poison|web cache (poison|decept)|unkeyed (header|input|param)|cache.*(poison|decept)", "cache-poisoning"),
     (r"graphql.*introspect|introspection (enabled|exposed|habilitada|on|ativ)|\b__schema\b|\b__type\b|graphql schema (expos|leak|dump)", "graphql"),

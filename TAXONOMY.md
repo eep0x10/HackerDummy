@@ -33,6 +33,7 @@ brute force).
 | `open-redirect` | Unvalidated redirect |
 | `clickjacking` | Missing frame protection (X-Frame-Options / frame-ancestors) |
 | `csrf` | Cross-Site Request Forgery (missing anti-CSRF token / unvalidated OAuth `state`) |
+| `smuggling` | HTTP request smuggling (CL.TE / TE.CL front-end/back-end desync) |
 | `cors-misconfig` | Permissive CORS (reflected/`null`/wildcard origin + credentials) |
 | `host-header-injection` | Host / X-Forwarded-Host trusted into links/redirects (reset poisoning) |
 | `crlf` | CRLF injection / HTTP response splitting |

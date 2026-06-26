@@ -1,0 +1,34 @@
+{
+  "lab": "19-smuggleforge",
+  "base_url": "http://127.0.0.1:18819",
+  "stack": "front-end (CL) + back-end (TE) raw-socket HTTP tier (python stdlib)",
+  "vulns": [
+    {
+      "id": "N1",
+      "class": "smuggling",
+      "severity": "critical",
+      "route": "*",
+      "desc": "HTTP request smuggling (CL.TE desync): the front-end length-delimits requests by Content-Length and ignores Transfer-Encoding, while the back-end honours Transfer-Encoding: chunked. An attacker sends a request with BOTH headers where the chunked body ends early (0-chunk) but Content-Length covers a smuggled second request; the front-end forwards it all, the back-end treats the trailing bytes as a new request — bypassing the front-end's /admin block and reaching the internal-only admin endpoint.",
+      "exploit": "POST /search with Content-Length covering a trailing 'GET /admin ...' after a '0' chunk + Transfer-Encoding: chunked -> the back-end serves /admin and its secret is relayed back, even though the front-end 403s a direct /admin request.",
+      "points": 1
+    },
+    {
+      "id": "N2",
+      "class": "version",
+      "severity": "low",
+      "route": "*",
+      "desc": "Software/architecture disclosure via Server banners: responses expose Server: SmuggleForge-backend/1.0 (and the front-end SmuggleForge/1.0), revealing the multi-tier proxy architecture and component versions.",
+      "exploit": "curl -I / -> Server banner reveals the back-end component and version.",
+      "points": 1
+    },
+    {
+      "id": "N3",
+      "class": "headers",
+      "severity": "low",
+      "route": "*",
+      "desc": "Missing security headers on all responses: no Content-Security-Policy, X-Frame-Options/frame-ancestors, X-Content-Type-Options, or HSTS.",
+      "exploit": "curl -I any endpoint -> none of CSP/XFO/XCTO/HSTS present.",
+      "points": 1
+    }
+  ]
+}
