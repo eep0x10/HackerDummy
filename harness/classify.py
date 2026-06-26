@@ -39,6 +39,7 @@ TAXONOMY = [
     (r"\bxxe\b|xml external entit|external general entit|external.*entity injection", "xxe"),
     (r"deserializ|desserializ|insecure.*deserial|unsafe.*(pickle|unpickle|unserialize|marshal)|pickle.*load|object injection|__reduce__|unmarshal", "deserialization"),
     (r"\bssti\b|server.?side template inject|template injection|expression language inject", "ssti"),
+    (r"\bimds\b|imdsv\d|instance metadata|metadata.*credential|credential.*(theft|exfil)|169\.254\.169\.254|security-credentials|instance.?role.*(credential|token)|steal.*(instance|iam|role).*(credential|token)", "creds"),
     (r"\bssrf\b|server.?side request", "ssrf"),
     (r"\blfi\b|local file incl|path traversal|directory traversal|file inclusion", "lfi"),
     (r"stored xss|persistent xss|xss armazenad", "stored-xss"),
