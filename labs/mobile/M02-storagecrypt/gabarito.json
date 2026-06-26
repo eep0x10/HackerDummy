@@ -1,0 +1,44 @@
+{
+  "lab": "M02-storagecrypt",
+  "platform": "android",
+  "artifact": "labs/mobile/M02-storagecrypt/app  (decompiled apktool tree)",
+  "stack": "Android APK (decompiled) — insecure local storage + broken cryptography (rung 2 of the mobile ladder)",
+  "vulns": [
+    {
+      "id": "S1",
+      "class": "insecure-storage",
+      "severity": "high",
+      "route": "*",
+      "desc": "StorageManager writes the auth token, session, and full card PAN to SharedPreferences in cleartext with MODE_WORLD_READABLE (0x1) — any other app on the device can read them — and an unencrypted SQLite DB (wallet.db, no SQLCipher) stores PII (CPF, full name, card number) in cleartext.",
+      "exploit": "run-as com.storagecrypt.app cat shared_prefs/session.xml ; adb pull databases/wallet.db -> cleartext token + PAN + PII.",
+      "points": 1
+    },
+    {
+      "id": "S2",
+      "class": "weak-crypto",
+      "severity": "high",
+      "route": "*",
+      "desc": "CryptoUtils uses AES/ECB/NoPadding with a hardcoded 16-byte key (\"1234567890123456\") and an all-zero static IV reused for every message; the user PIN is hashed with unsalted MD5. ECB leaks block structure, the fixed key/IV make ciphertext trivially decryptable, and unsalted MD5 is brute-forced/rainbow-tabled instantly.",
+      "exploit": "grep -E 'AES/ECB|SecretKeySpec|IvParameterSpec|MD5' smali/ ; recover key from the dex, decrypt offline.",
+      "points": 1
+    },
+    {
+      "id": "S3",
+      "class": "sensitive-log",
+      "severity": "medium",
+      "route": "*",
+      "desc": "StorageManager.saveSession logs the session token and full card PAN to logcat via Log.d on every save, so any process with READ_LOGS (or a pre-Android-4.1 device / a crash-reporting SDK) captures them.",
+      "exploit": "adb logcat | grep -iE 'token=|card_pan=' -> live session token + PAN.",
+      "points": 1
+    },
+    {
+      "id": "S4",
+      "class": "backup-allowed",
+      "severity": "medium",
+      "route": "*",
+      "desc": "android:allowBackup=\"true\" makes all of the cleartext storage above extractable from a non-rooted device via adb backup.",
+      "exploit": "adb backup -f w.ab com.storagecrypt.app ; abe unpack -> the cleartext prefs + wallet.db.",
+      "points": 1
+    }
+  ]
+}

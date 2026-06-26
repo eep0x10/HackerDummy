@@ -91,7 +91,12 @@ brute force).
 | `backup-allowed` | `android:allowBackup="true"` — private app data extractable via `adb backup` |
 | `exported-component` | Activity/Service/Receiver/Provider exported without permission (IPC abuse) |
 | `cleartext-traffic` | Cleartext HTTP permitted (`usesCleartextTraffic` / network-security-config) |
+| `insecure-storage` | Sensitive data at rest in cleartext (world-readable SharedPreferences, unencrypted SQLite/PII) |
+| `sensitive-log` | Sensitive data (token/PII/PAN) written to logcat (`Log.d`/`Log.v`) |
 
+> `weak-crypto` also covers mobile crypto misuse (AES-ECB, static/zero IV, hardcoded
+> crypto key, unsalted MD5/SHA1).
+>
 > Hardcoded mobile secrets (API keys, signing secrets in `strings.xml`/`smali`/assets)
 > map to `creds`; weak mobile crypto to `weak-crypto`; content-provider path traversal
 > to `lfi` — the same web classes apply.
