@@ -1,0 +1,52 @@
+{
+  "lab": "18-javaforge",
+  "base_url": "http://127.0.0.1:18818",
+  "stack": "Java / Apache Tomcat servlet app (faithful stdlib-Python mock)",
+  "vulns": [
+    {
+      "id": "M1",
+      "class": "deserialization",
+      "severity": "critical",
+      "route": "/api/restore",
+      "desc": "Native Java deserialization -> RCE: the app round-trips a base64 Java serialized object (stream magic AC ED 00 05 = base64 'rO0AB') in the JSESSIONOBJ cookie and accepts one at POST /api/restore, calling the equivalent of ObjectInputStream.readObject() on attacker-controlled bytes. A ysoserial gadget chain (CommonsCollections / TemplatesImpl / etc.) achieves remote code execution.",
+      "exploit": "POST /api/restore a base64 ysoserial CommonsCollections payload (rO0AB...) -> the gadget chain is recognised and would execute via readObject() -> RCE. Also reachable by tampering the JSESSIONOBJ cookie.",
+      "points": 1
+    },
+    {
+      "id": "M2",
+      "class": "default-creds",
+      "severity": "high",
+      "route": "/manager",
+      "desc": "Default Tomcat Manager credentials: /manager/html accepts default credentials (tomcat/tomcat, admin/admin, manager/manager). Authenticated manager access allows deploying a malicious WAR -> RCE.",
+      "exploit": "GET /manager/html with Authorization: Basic dG9tY2F0OnRvbWNhdA== (tomcat:tomcat) -> Tomcat Web Application Manager.",
+      "points": 1
+    },
+    {
+      "id": "M3",
+      "class": "info-disc",
+      "severity": "high",
+      "route": "/api/restore",
+      "desc": "Verbose Java stack traces: malformed input to the deserialization endpoint returns a full Java exception (java.io.InvalidClassException / ObjectInputStream.readObject with line numbers and internal class/package names), disclosing the stack and internals.",
+      "exploit": "POST /api/restore with non-serialized bytes -> java.io.InvalidClassException stack trace in the response.",
+      "points": 1
+    },
+    {
+      "id": "M4",
+      "class": "eol",
+      "severity": "medium",
+      "route": "*",
+      "desc": "End-of-life / outdated stack disclosed: responses send Server: Apache-Coyote/1.1 and X-Powered-By: ... (Apache Tomcat/7.0.42, Java/1.8.0_71) — both end-of-life and unpatched, with public deserialization-related CVEs (CVE-2016-8735, etc.). Version disclosure via banner reveals the EOL software.",
+      "exploit": "curl -I / -> Server + X-Powered-By banners disclosing Tomcat 7.0.42 / Java 1.8.0_71.",
+      "points": 1
+    },
+    {
+      "id": "M5",
+      "class": "headers",
+      "severity": "low",
+      "route": "*",
+      "desc": "Missing security headers on all responses: no Content-Security-Policy, X-Frame-Options/frame-ancestors, X-Content-Type-Options, or HSTS.",
+      "exploit": "curl -I any endpoint -> none of CSP/XFO/XCTO/HSTS present.",
+      "points": 1
+    }
+  ]
+}

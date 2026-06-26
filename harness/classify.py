@@ -41,9 +41,6 @@ TAXONOMY = [
     (r"\bimds\b|imdsv\d|instance metadata|metadata.*credential|credential.*(theft|exfil)|169\.254\.169\.254|security-credentials|instance.?role.*(credential|token)|steal.*(instance|iam|role).*(credential|token)", "creds"),
     (r"\bssrf\b|server.?side request", "ssrf"),
     (r"\blfi\b|local file incl|path traversal|directory traversal|file inclusion", "lfi"),
-    # rce LAST among code-exec classes: "<X> -> RCE" keeps root cause X (upload/lfi/
-    # ssrf/xxe/deser/ssti above); only pure command-injection lands on rce.
-    (r"\brce\b|remote code|command inj|os command|code execution|inje[cç].*comando", "rce"),
     (r"stored xss|persistent xss|xss armazenad", "stored-xss"),
     (r"reflect.*xss|xss reflet|cross.?site script|reflected.*script|dom.?based.?xss|dom.?xss", "xss"),
     (r"prototype pollut|proto.?pollut|__proto__|object\.prototype|constructor.*pollut", "prototype-pollution"),
@@ -83,6 +80,9 @@ TAXONOMY = [
     (r"version disclos|disclosure de vers|vers[aã]o.*expos|x-aspnet-version|x-powered-by|software.*banner", "version"),
     (r"credential|senhas|password.*file|creds.*expos|plaintext.*pass|cred.*expos|arquivo.*senha|\.env\b|secrets?.*(expos|leak)|api.?key.*(expos|leak)", "creds"),
     (r"missing authentication|no authentication required|unauthenticated access|authentication not required|broken access control|missing authoriz|missing object.?level author", "idor"),
+    # rce is the LAST impact class: "<X> -> RCE" keeps root cause X (every specific
+    # root cause that leads to RCE is above). Only pure command-injection lands here.
+    (r"\brce\b|remote code|command inj|os command|code execution|inje[cç].*comando", "rce"),
     (r"info.*disclos|information disclosure|path disclos|internal path|caminho.*interno|vazamento|verbose error|erro verboso|stack.?trace|traceback|debug mode|field suggestion|unhandled exception|trace\.axd|asp.?net.*trace|\belmah\b|customerror|yellow screen of death", "info-disc"),
 ]
 

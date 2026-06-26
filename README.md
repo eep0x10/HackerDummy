@@ -107,8 +107,9 @@ vulns in that lab's answer key.
 | 15 | [RaceVault](labs/15-racevault/) | Business logic — genuine **race condition** (TOCTOU voucher double-spend via concurrent requests), IDOR, mass-assignment, no-rate-limit | 5 |
 | 16 | [SamlForge](labs/16-samlforge/) | SSO / SAML — assertion signature not verified (auth bypass), XXE via SAMLResponse, RelayState open-redirect, verbose errors | 5 |
 | 17 | [OAuthForge](labs/17-oauthforge/) | OAuth 2.0 / OIDC — unvalidated `redirect_uri` (code theft), missing `state` (CSRF), auth-code reuse + PKCE downgrade + no client auth | 5 |
+| 18 | [JavaForge](labs/18-javaforge/) | Native **Java deserialization** (`rO0AB` session/`/api/restore` → ysoserial gadget → RCE), Tomcat default creds, Java stack traces, EOL stack | 5 |
 
-**121 planted vulnerabilities across 17 labs.** More on the way (native
+**126 planted vulnerabilities across 18 labs.** More on the way (native
 deserialization, request smuggling, GraphQL-advanced).
 
 > Labs 01–10 are single-file stdlib **Python** (`python labs/NN/app.py`). Lab 11 is
@@ -153,6 +154,7 @@ took the agent from the baselines below to 100% recall:
 | 15 RaceVault | 80% | **100%** | plugin fired concurrent requests + found the TOCTOU race; needed a new `race-condition` class |
 | 16 SamlForge | 80% | **100%** | blind agent did the full SAML tamper/strip/XXE chain; SAML sig-bypass mis-classed as `jwt` (regex too greedy) |
 | 17 OAuthForge | 40% | **100%** | blind agent did the full OAuth chain; needed a new `csrf` class + OAuth token-flaw vocab in `auth` |
+| 18 JavaForge | 60% | **100%** | recognised `rO0AB` Java deser blind; `rce` had to become the last impact class (default-creds→RCE kept root) |
 
 That loop — *measure → find the blind spot → fix → re-measure* — is exactly what
 PentestBench is for, whatever agent you bring. The pattern held in all ten labs:
