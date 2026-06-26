@@ -34,7 +34,7 @@ TAXONOMY = [
     # upload before rce: an unrestricted-upload finding is class 'upload' even when the
     # title states the RCE impact ("File Upload -> RCE / webshell"). Pure command-injection
     # RCE has no upload words and falls through to 'rce'.
-    (r"file.?upload|unrestricted upload|arbitrary file|webshell|polyglot|upload.*(shell|arbitr|malicios|webshell|rce|remote code|execu)", "upload"),
+    (r"file.?upload|unrestricted upload|arbitrary file (upload|write|creat)|webshell|polyglot|upload.*(shell|arbitr|malicios|webshell|rce|remote code|execu)", "upload"),
     (r"\bxxe\b|xml external entit|external general entit|external.*entity injection", "xxe"),
     (r"deserializ|desserializ|insecure.*deserial|unsafe.*(pickle|unpickle|unserialize|marshal)|pickle.*load|object injection|__reduce__|unmarshal", "deserialization"),
     (r"\bssti\b|server.?side template inject|template injection|expression language inject", "ssti"),
@@ -53,9 +53,16 @@ TAXONOMY = [
     (r"rate.?limit|brute.?force|for[çc]a bruta|no lockout|account lockout|excessive.*(attempts|requests)|throttl", "no-rate-limit"),
     (r"mass.?assignment|mass-assign|auto.?bind|over.?post|autobinding", "mass-assignment"),
     (r"race.?cond|\btoctou\b|time.?of.?check|check.?then.?act|double.?spend|concurren\w*.*(redeem|withdraw|transfer|purchase|spend|double|limit|bypass)|parallel.*request.*(double|race|bypass)", "race-condition"),
-    # ── Mobile storage/crypto classes — before weak-crypto; backup-allowed before
-    # insecure-storage so an "allowBackup -> extract prefs/db" finding stays backup-allowed ──
+    # ── Mobile (Android) classes — single block before weak-crypto (hence before
+    # auth/open-redirect/web-backup). deeplink before exported-component; backup-allowed
+    # before insecure-storage; insecure-storage before weak-crypto. ──
+    (r"android:debuggable|\bdebuggable\b|debug flag.*(true|enabled|on)|app.*debuggable", "debuggable"),
     (r"android:allowbackup|allow.?backup|\ballowbackup\b|adb backup|backup.*(enabled|allowed|permitted)|backup flag", "backup-allowed"),
+    (r"intent.?redirect|intent redirection|intent\.parseuri|\bparseuri\b|deep.?link.*(redirect|forward|hijack|takeover|spoof|unvalidat|inject)|(url )?scheme.*(hijack|takeover|spoof)|app.?link.*(hijack|unverif|takeover)|implicit intent.*(forward|redirect)|task hijack|strandhogg|forwards? (an? |the )?(untrusted |attacker.?controlled )?intent", "deeplink"),
+    (r"android:exported|exported (activity|service|receiver|provider|component)|(activity|service|receiver|provider|content provider).*(exported|no permission|without permission|sem permiss)|exported.*(component|without.*permission|no.?permission)|improperly exported", "exported-component"),
+    (r"usescleartexttraffic|cleartexttrafficpermitted|cleartext traffic|clear.?text traffic|network.?security.?config.*(cleartext|permit|http)|cleartext.*(permitted|allowed|enabled|traffic|connection|http)|unencrypted (http|traffic|connection)", "cleartext-traffic"),
+    (r"x509trustmanager|trust.?manager.*(empty|all|accept|trust.?all|no.?op)|trustallcerts|checkservertrusted.*(empty|return|nothing|no.?valid|does not)|allow.?all.?hostname|hostnameverifier.*(allow.?all|return true|always true|true for (all|any))|(ssl|tls|certificate|cert).*(pinning|validation).*(missing|absent|disabled|bypass|none|not (implement|enforc|valid))|accepts? (all|any) (cert|certificate)|trust.?all.*(cert|certificate)|(no|missing|disabled|absent) (certificate|cert|ssl|tls) (validation|pinning|check)|missing (certificate |cert )?pinning", "improper-tls"),
+    (r"webview|addjavascriptinterface|javascriptinterface|setjavascriptenabled|setallowfileaccess|allowfileaccessfromfileurls|allowuniversalaccessfromfileurls|js bridge|javascript bridge|file.?url.*(webview|access)", "webview"),
     (r"shared.?pref\w*.*(world.?readable|plaintext|cleartext|mode_world|unencrypt|sensitive|token|password|secret|pii|pan)|mode_world_readable|world.?(readable|writable).*(pref|file|storage|db)|plaintext.*(sqlite|database|\.db\b|shared.?pref|prefs)|(sqlite|database|\.db\b).*(plaintext|unencrypt|cleartext|sensitive|pii|no.?encrypt|sqlcipher)|insecure (local )?(data )?storage|sensitive data.*(stored|saved|at rest).*(plaintext|cleartext|unencrypt)|stores?.*(token|password|\bpin\b|pii|card|pan|credential).*(plaintext|cleartext|unencrypt|shared.?pref|sqlite|external storage)|external storage.*(secret|token|sensitive|password|pii|credential)", "insecure-storage"),
     (r"logcat|log\.[dveiw]\b|android\.util\.log|(token|password|secret|credential|session|\bpan\b|card (number|pan)|\bpii\b|\bcpf\b).*(logged|written to (the )?log|leaked? (to|via|into) (the )?log)|sensitive (data|info\w*).*(logged|in (the )?logs?|logcat)", "sensitive-log"),
     (r"unsalted|\bmd5\b|\bsha1\b|weak.*(hash|crypto|cipher)|insecure.*(password storage|hash)|plaintext password|sem salt|\becb\b|aes/ecb|ecb mode|\bdes\b|\b3des\b|triple.?des|\brc4\b|no.?padding|static iv|fixed iv|null iv|zero iv|hardcoded iv|reused iv|hardcoded (aes|des|encryption|crypto|cipher|secret) key|(aes|des|encryption|cipher) key.*hardcod", "weak-crypto"),
@@ -74,13 +81,6 @@ TAXONOMY = [
     (r"open.?redirect|unvalidated redirect|redirect.*unvalidat|url redirection|redirect.*untrusted", "open-redirect"),
     (r"\.git\b|git.?expos|svn.?expos|reposit[oó]rio.*expos|source.*repo|version.?control.*expos", "scm"),
     (r"web\.config|connection string|machinekey|appsettings.*secret", "web-config"),
-    # ── Mobile (Android) static-analysis classes — placed before web backup/admin-panel/
-    # headers so the specific mobile class wins those collisions (e.g. "adb backup file") ──
-    (r"android:debuggable|\bdebuggable\b|debug flag.*(true|enabled|on)|app.*debuggable", "debuggable"),
-    (r"android:exported|exported (activity|service|receiver|provider|component)|(activity|service|receiver|provider|content provider).*(exported|no permission|without permission|sem permiss)|exported.*(component|without.*permission|no.?permission)|improperly exported", "exported-component"),
-    (r"usescleartexttraffic|cleartexttrafficpermitted|cleartext traffic|clear.?text traffic|network.?security.?config.*(cleartext|permit|http)|cleartext.*(permitted|allowed|enabled|traffic|connection|http)|unencrypted (http|traffic|connection)", "cleartext-traffic"),
-    (r"x509trustmanager|trust.?manager.*(empty|all|accept|trust.?all|no.?op)|trustallcerts|checkservertrusted.*(empty|return|nothing|no.?valid|does not)|allow.?all.?hostname|hostnameverifier.*(allow.?all|return true|always true|true for (all|any))|(ssl|tls|certificate|cert).*(pinning|validation).*(missing|absent|disabled|bypass|none|not (implement|enforc|valid))|accepts? (all|any) (cert|certificate)|trust.?all.*(cert|certificate)|(no|missing|disabled|absent) (certificate|cert|ssl|tls) (validation|pinning|check)|missing (certificate |cert )?pinning", "improper-tls"),
-    (r"webview|addjavascriptinterface|javascriptinterface|setjavascriptenabled|setallowfileaccess|allowfileaccessfromfileurls|allowuniversalaccessfromfileurls|js bridge|javascript bridge|file.?url.*(webview|access)", "webview"),
     (r"backup.*(dir|expos|arquivo|file)|\bbkp\b|\.bak\b|dump.*expos|sql.?dump|database (backup|dump)|\.sql\b.*(expos|public|access)", "backup"),
     (r"directory listing|index of|listagem de diret|autoindex", "dir-listing"),
     (r"phpinfo", "phpinfo"),

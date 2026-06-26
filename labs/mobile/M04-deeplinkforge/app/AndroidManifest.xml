@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DeepLinkForge — INTENTIONALLY VULNERABLE Android app (decompiled apktool form).
+     Theme: IPC / deep links — intent redirection, exported auth-bypass, provider traversal. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.dlforge.app"
+    android:versionCode="7"
+    android:versionName="4.0">
+
+    <uses-sdk android:minSdkVersion="23" android:targetSdkVersion="31" />
+
+    <application
+        android:label="@string/app_name"
+        android:theme="@android:style/Theme.Material.Light">
+
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- deep-link handler: forwards the app to a target taken straight from the link -->
+        <activity
+            android:name=".DeepLinkActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="dlforge" android:host="go" />
+            </intent-filter>
+        </activity>
+
+        <!-- internal post-login account screen — but exported with NO permission,
+             so any app launches it directly, skipping the login flow -->
+        <activity
+            android:name=".DashboardActivity"
+            android:exported="true" />
+
+        <!-- exported content provider, no read/write permission, grantUriPermissions -->
+        <provider
+            android:name=".FilesProvider"
+            android:authorities="com.dlforge.app.files"
+            android:exported="true"
+            android:grantUriPermissions="true" />
+    </application>
+</manifest>

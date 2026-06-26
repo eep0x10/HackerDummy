@@ -176,7 +176,7 @@ mobile-banking target (RASP, native pinning, anti-instrumentation, obfuscation):
 | M01 | [LeakyVault](labs/mobile/M01-leakyvault/) ✅ | Static fruit — debuggable, `allowBackup`, exported components, cleartext traffic, hardcoded secrets · **5 vulns, 100% recall** |
 | M02 | [StorageCrypt](labs/mobile/M02-storagecrypt/) ✅ | Insecure storage & crypto — world-readable prefs, plaintext SQLite/PII, AES-ECB + static IV, MD5, sensitive logs · **4 vulns, 100% recall** |
 | M03 | [NetForge](labs/mobile/M03-netforge/) ✅ | Network trust — trust-all `X509TrustManager`, allow-all hostname verifier, missing pinning, WebView JS-bridge / file access · **3 vulns, 100% recall** |
-| M04 | DeepLinkForge | IPC / deep links — exported component auth bypass, content-provider traversal, deep-link/intent redirection |
+| M04 | [DeepLinkForge](labs/mobile/M04-deeplinkforge/) ✅ | IPC / deep links — exported-component auth bypass, content-provider traversal, deep-link / intent redirection · **3 vulns, 100% recall** |
 | M05 | RootLite | RASP entry — naïve, bypassable root/emulator/anti-debug checks, missing `FLAG_SECURE`, tapjacking |
 | M06 | Hardened | Banking-grade — OkHttp + native pinning, anti-Frida/anti-debug, integrity attestation, heavy obfuscation guarding the real flaw |
 

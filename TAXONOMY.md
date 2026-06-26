@@ -93,6 +93,7 @@ brute force).
 | `cleartext-traffic` | Cleartext HTTP permitted (`usesCleartextTraffic` / network-security-config) |
 | `improper-tls` | Broken TLS trust — trust-all `X509TrustManager`, allow-all hostname verifier, missing pinning |
 | `webview` | Dangerous WebView — `addJavascriptInterface` bridge + file access + attacker-controlled `loadUrl` |
+| `deeplink` | Deep-link / intent-redirection — exported BROWSABLE handler forwards an attacker-supplied intent/target unvalidated |
 | `insecure-storage` | Sensitive data at rest in cleartext (world-readable SharedPreferences, unencrypted SQLite/PII) |
 | `sensitive-log` | Sensitive data (token/PII/PAN) written to logcat (`Log.d`/`Log.v`) |
 

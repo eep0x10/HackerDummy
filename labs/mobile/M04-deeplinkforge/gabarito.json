@@ -1,0 +1,35 @@
+{
+  "lab": "M04-deeplinkforge",
+  "platform": "android",
+  "artifact": "labs/mobile/M04-deeplinkforge/app  (decompiled apktool tree)",
+  "stack": "Android APK (decompiled) — IPC / deep links: intent redirection, exported auth-bypass, content-provider traversal (rung 4 of the mobile ladder)",
+  "vulns": [
+    {
+      "id": "D1",
+      "class": "deeplink",
+      "severity": "high",
+      "route": "*",
+      "desc": "DeepLinkActivity is exported + BROWSABLE (dlforge://go) and takes the 'target' query parameter from the inbound link, calls Intent.parseUri(target) and startActivity() with NO validation — classic intent redirection: an attacker (or any web page) can redirect the app into an unexported internal Activity (auth bypass) or out to an attacker-chosen component/target.",
+      "exploit": "am start -a android.intent.action.VIEW -d 'dlforge://go?target=intent:...' ; or a web link dlforge://go?target=<intent-uri>.",
+      "points": 1
+    },
+    {
+      "id": "D2",
+      "class": "lfi",
+      "severity": "high",
+      "route": "*",
+      "desc": "FilesProvider is an exported ContentProvider whose openFile() builds a File from the request URI's last path segment appended raw to the files dir, with no canonicalization or '../' check — a path-traversal that lets any app read arbitrary files in the app sandbox (databases, shared_prefs, private files) via content://com.dlforge.app.files/.. .",
+      "exploit": "content read --uri 'content://com.dlforge.app.files/..%2Fdatabases%2Fwallet.db' from any app -> arbitrary sandbox file read.",
+      "points": 1
+    },
+    {
+      "id": "D3",
+      "class": "exported-component",
+      "severity": "high",
+      "route": "*",
+      "desc": "DashboardActivity is the authenticated account screen but is android:exported=\"true\" with no permission and performs no auth check of its own (it assumes it is reached only after login). Any installed app can launch it directly, bypassing the login flow.",
+      "exploit": "am start -n com.dlforge.app/.DashboardActivity -> account screen shown without authenticating.",
+      "points": 1
+    }
+  ]
+}
