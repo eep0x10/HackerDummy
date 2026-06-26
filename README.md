@@ -94,12 +94,7 @@ python ctf_platform.py                    # -> http://127.0.0.1:8088
 
 Both are **cross-platform** (Windows / Linux / macOS) and **stdlib-only** — no
 Flask, no pip install. The web console shows each lab as a card with its live
-status, target port, planted-vuln count, and attack surface:
-
-<p align="center">
-  <img src="assets/hackerdummy-icon-96.png" alt="" width="40">
-  &nbsp;<em>one port = one lab</em>
-</p>
+status, target port, planted-vuln count, and attack surface — **one port, one lab.**
 
 ## The findings format
 
