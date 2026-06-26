@@ -1,0 +1,52 @@
+{
+  "lab": "15-racevault",
+  "base_url": "http://127.0.0.1:18815",
+  "stack": "python-stdlib wallet/voucher app (threaded)",
+  "vulns": [
+    {
+      "id": "F1",
+      "class": "race-condition",
+      "severity": "critical",
+      "route": "/redeem",
+      "desc": "Race condition (TOCTOU) in voucher redemption: POST /redeem checks voucher.used, then credits the wallet and sets used=True with NO lock between check and act. Firing concurrent requests for a single-use voucher lets all of them pass the check before any marks it used, so the voucher is redeemed multiple times and the wallet is over-credited. Only findable by sending parallel requests.",
+      "exploit": "Login -> fire ~20 concurrent POST /redeem {voucher:WELCOME50} -> balance ends up a multiple of 50 instead of 50 (voucher redeemed many times).",
+      "points": 1
+    },
+    {
+      "id": "F2",
+      "class": "idor",
+      "severity": "high",
+      "route": "/wallet",
+      "desc": "IDOR: GET /wallet?user=<name> returns ANY user's balance and profile with no authentication or ownership check, so an attacker enumerates and reads every account.",
+      "exploit": "GET /wallet?user=bob (with no/own session) -> bob's balance and profile.",
+      "points": 1
+    },
+    {
+      "id": "F3",
+      "class": "mass-assignment",
+      "severity": "high",
+      "route": "/profile",
+      "desc": "Mass assignment: POST /profile blindly merges the whole request body into the account, so privileged fields the client should never control (balance, is_admin) are accepted and applied.",
+      "exploit": "POST /profile {\"balance\":1000000,\"is_admin\":true} with your own token -> wallet balance and admin flag set directly.",
+      "points": 1
+    },
+    {
+      "id": "F4",
+      "class": "no-rate-limit",
+      "severity": "medium",
+      "route": "/login",
+      "desc": "Lack of rate limiting / lockout on POST /login: unlimited credential attempts with no throttle, delay, or lockout enable brute force and credential stuffing.",
+      "exploit": "Loop POST /login with candidate passwords -> no 429, no lockout, no delay.",
+      "points": 1
+    },
+    {
+      "id": "F5",
+      "class": "headers",
+      "severity": "low",
+      "route": "*",
+      "desc": "Missing security headers on all responses: no Content-Security-Policy, X-Frame-Options/frame-ancestors, X-Content-Type-Options, or HSTS.",
+      "exploit": "curl -I any endpoint -> none of CSP/XFO/XCTO/HSTS present.",
+      "points": 1
+    }
+  ]
+}

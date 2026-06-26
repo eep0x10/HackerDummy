@@ -55,6 +55,7 @@ TAXONOMY = [
     (r"user(name)? enumeration|account enumeration|enumera[çc][aã]o de usu|user.*enumerat", "user-enum"),
     (r"rate.?limit|brute.?force|for[çc]a bruta|no lockout|account lockout|excessive.*(attempts|requests)|throttl", "no-rate-limit"),
     (r"mass.?assignment|mass-assign|auto.?bind|over.?post|autobinding", "mass-assignment"),
+    (r"race.?cond|\btoctou\b|time.?of.?check|check.?then.?act|double.?spend|concurren\w*.*(redeem|withdraw|transfer|purchase|spend|double|limit|bypass)|parallel.*request.*(double|race|bypass)", "race-condition"),
     (r"unsalted|\bmd5\b|\bsha1\b|weak.*(hash|crypto|cipher)|insecure.*(password storage|hash)|plaintext password|sem salt", "weak-crypto"),
     (r"session fixation|session.*(not invalidat|never.*expir|without expir|no expir|does not expir|fixa)|(token|session).*(without expir|no expir|never expir|no invalidation|no logout)|not invalidated.*(session|token|logout)|no logout endpoint|predictable.*(session|remember|cookie)|remember.?me", "session"),
     (r"authentication bypass|auth(entication)? bypass|login bypass|bypass.*authentica|type.?juggl|magic hash|loose compar(e|ison)|strcmp.*bypass|password reset|reset token|broken authentication|weak.*(password )?recovery|account takeover|forgot password", "auth"),

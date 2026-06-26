@@ -29,6 +29,7 @@ brute force).
 | `xss` | Cross-site scripting (reflected / DOM-based) |
 | `stored-xss` | Stored/persistent XSS |
 | `prototype-pollution` | Client-side prototype pollution (`__proto__` via merge/clone) |
+| `race-condition` | TOCTOU / concurrency flaw (double-spend, limit bypass via parallel requests) |
 | `open-redirect` | Unvalidated redirect |
 | `clickjacking` | Missing frame protection (X-Frame-Options / frame-ancestors) |
 | `cors-misconfig` | Permissive CORS (reflected/`null`/wildcard origin + credentials) |

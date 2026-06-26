@@ -104,8 +104,9 @@ vulns in that lab's answer key.
 | 12 | [CloudPivot](labs/12-cloudpivot/) | **Chaining** — SSRF → cloud IMDS instance-role credential theft → token reuse → RCE (each step gates the next), + verbose errors | 5 |
 | 13 | [AspNetVault](labs/13-aspnetvault/) | .NET / IIS — exposed `web.config` (connectionStrings + machineKey), ViewState deserialization, ASP.NET trace viewer, version banners | 5 |
 | 14 | [ClientForge](labs/14-clientforge/) | Client-side — DOM XSS (`location.hash`→`innerHTML`), prototype pollution, DOM open-redirect, hardcoded secret in JS, missing CSP | 5 |
+| 15 | [RaceVault](labs/15-racevault/) | Business logic — genuine **race condition** (TOCTOU voucher double-spend via concurrent requests), IDOR, mass-assignment, no-rate-limit | 5 |
 
-**106 planted vulnerabilities across 14 labs.** More on the way (native
+**111 planted vulnerabilities across 15 labs.** More on the way (native
 deserialization, request smuggling, SSO/SAML).
 
 > Labs 01–10 are single-file stdlib **Python** (`python labs/NN/app.py`). Lab 11 is
@@ -147,6 +148,7 @@ took the agent from the baselines below to 100% recall:
 | 12 CloudPivot | 60% | **100%** | plugin chained SSRF→IMDS→RCE; IMDS cred-theft mis-classed as `ssrf`; error-fuzzing missed malformed URL ports |
 | 13 AspNetVault | 60% | **100%** | full .NET recon worked blind; `rce` had to move last so "ViewState deser→RCE" keeps its root cause |
 | 14 ClientForge | 60% | **100%** | new `prototype-pollution` class; `xss` didn't recognise DOM XSS (no `\bxss\b`/DOM vocab) |
+| 15 RaceVault | 80% | **100%** | plugin fired concurrent requests + found the TOCTOU race; needed a new `race-condition` class |
 
 That loop — *measure → find the blind spot → fix → re-measure* — is exactly what
 PentestBench is for, whatever agent you bring. The pattern held in all ten labs:
