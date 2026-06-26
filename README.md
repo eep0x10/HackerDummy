@@ -1,8 +1,8 @@
-# PentestBench
+# HackerDummy
 
 **A benchmark for evaluating AI/LLM agents at penetration testing.**
 
-PentestBench is a set of **deliberately-vulnerable apps**, each shipped with an
+HackerDummy is a set of **deliberately-vulnerable apps**, each shipped with an
 **answer key** (`gabarito.json`) listing every planted vulnerability. You point
 *your* AI agent at a lab **blind** (it never sees the answer key), collect what it
 found, and score it — objectively — for **recall** (did it catch every vuln?) and
@@ -20,7 +20,7 @@ what it found *in its own words*.
 ## Why it exists
 
 You can't improve what you can't measure. Eyeballing a pentest report tells you
-nothing about what the agent **missed**. PentestBench turns that into a number:
+nothing about what the agent **missed**. HackerDummy turns that into a number:
 
 ```
    build lab + answer key  →  run YOUR agent BLIND  →  score recall / precision
@@ -39,8 +39,8 @@ Use it to:
 ## Quick start (any agent, 3 steps)
 
 ```bash
-git clone https://github.com/eep0x10/PentestBench
-cd PentestBench
+git clone https://github.com/eep0x10/HackerDummy
+cd HackerDummy
 
 # 1. start a lab (stdlib Python, no dependencies)
 python labs/01-vulnshop/app.py        # -> http://127.0.0.1:18801
@@ -128,7 +128,7 @@ The answer keys make every lab a **labeled dataset**:
 - **Regression gate** = require recall ≥ target on all labs before shipping a new
   model/prompt.
 
-## Reference run — evolving one agent on PentestBench
+## Reference run — evolving one agent on HackerDummy
 
 As a worked case study, the benchmark's author ran their own pentest agent
 through every lab and used the misses to drive improvements. The pattern held in
@@ -160,7 +160,7 @@ took the agent from the baselines below to 100% recall:
 | 20 GraphForge | 100% | **100%** | clean first-pass — advanced GraphQL covered out of the box; the `csrf` class generalised to GraphQL-over-GET |
 
 That loop — *measure → find the blind spot → fix → re-measure* — is exactly what
-PentestBench is for, whatever agent you bring. The pattern held in all ten labs:
+HackerDummy is for, whatever agent you bring. The pattern held in all ten labs:
 **the agent detects nearly everything on the first pass; the gap is its report
 engine failing to *name/classify* what it found.**
 

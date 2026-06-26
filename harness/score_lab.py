@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-score_lab.py — Score ANY AI/agent's pentest against a PentestBench answer key.
+score_lab.py — Score ANY AI/agent's pentest against a HackerDummy answer key.
 
 Compares the vulnerabilities your agent FOUND against the lab's planted
 vulnerabilities (gabarito.json), matching by canonical class + route. Reports:
@@ -154,7 +154,7 @@ def score(gabarito_path, findings):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Score an AI agent's pentest vs a PentestBench answer key.")
+    ap = argparse.ArgumentParser(description="Score an AI agent's pentest vs a HackerDummy answer key.")
     ap.add_argument("--gabarito", required=True, help="path to a lab's gabarito.json")
     ap.add_argument("--findings", help="JSON of your agent's findings (generic mode)")
     ap.add_argument("--engagement", help="DroidAgent engagement dir (legacy mode)")

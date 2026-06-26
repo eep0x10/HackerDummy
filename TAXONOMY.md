@@ -1,6 +1,6 @@
 # Canonical vulnerability taxonomy
 
-These are the class keys PentestBench scores against. Every `gabarito.json` uses
+These are the class keys HackerDummy scores against. Every `gabarito.json` uses
 them, and [`harness/classify.py`](harness/classify.py) maps free-text finding
 labels to them — so your agent can report findings in its own words and still be
 scored. Matching is by **class + route**.

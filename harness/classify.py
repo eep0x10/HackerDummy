@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-classify.py — PentestBench's STANDALONE vulnerability taxonomy.
+classify.py — HackerDummy's STANDALONE vulnerability taxonomy.
 
 Maps a free-text finding title (whatever your AI/agent calls a vuln) to a
 canonical class key, so findings from ANY tool — Claude, GPT/Codex, Cursor,
