@@ -4,6 +4,7 @@ __pycache__/
 *.log
 _server.*.log
 .lab_logs/
+labs/**/_blind_findings.json
 .DS_Store
 # runtime upload storage (apps regenerate seed files on startup; never ship test uploads)
 labs/*/uploads/

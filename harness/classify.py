@@ -69,6 +69,12 @@ TAXONOMY = [
     (r"open.?redirect|unvalidated redirect|redirect.*unvalidat|url redirection|redirect.*untrusted", "open-redirect"),
     (r"\.git\b|git.?expos|svn.?expos|reposit[oó]rio.*expos|source.*repo|version.?control.*expos", "scm"),
     (r"web\.config|connection string|machinekey|appsettings.*secret", "web-config"),
+    # ── Mobile (Android) static-analysis classes — placed before web backup/admin-panel/
+    # headers so the specific mobile class wins those collisions (e.g. "adb backup file") ──
+    (r"android:debuggable|\bdebuggable\b|debug flag.*(true|enabled|on)|app.*debuggable", "debuggable"),
+    (r"android:allowbackup|allow.?backup|\ballowbackup\b|adb backup|backup.*(enabled|allowed|permitted)|backup flag", "backup-allowed"),
+    (r"android:exported|exported (activity|service|receiver|provider|component)|(activity|service|receiver|provider|content provider).*(exported|no permission|without permission|sem permiss)|exported.*(component|without.*permission|no.?permission)|improperly exported", "exported-component"),
+    (r"usescleartexttraffic|cleartexttrafficpermitted|cleartext traffic|clear.?text traffic|network.?security.?config.*(cleartext|permit|http)|cleartext.*(permitted|allowed|enabled|traffic|connection|http)|unencrypted (http|traffic|connection)", "cleartext-traffic"),
     (r"backup.*(dir|expos|arquivo|file)|\bbkp\b|\.bak\b|dump.*expos|sql.?dump|database (backup|dump)|\.sql\b.*(expos|public|access)", "backup"),
     (r"directory listing|index of|listagem de diret|autoindex", "dir-listing"),
     (r"phpinfo", "phpinfo"),
@@ -79,7 +85,7 @@ TAXONOMY = [
     (r"security header|cabe[cç]alho.*segur|content.?security.?policy|\bcsp\b|\bhsts\b|x-content-type|referrer.?policy|permissions.?policy|strict.?transport|x-frame-options|missing.*header", "headers"),
     (r"\beol\b|end.?of.?life|outdated|unsupported|sem patches|out of date|legacy.*version|fim de vida", "eol"),
     (r"version disclos|disclosure de vers|vers[aã]o.*expos|x-aspnet-version|x-powered-by|software.*banner", "version"),
-    (r"credential|senhas|password.*file|creds.*expos|plaintext.*pass|cred.*expos|arquivo.*senha|\.env\b|secrets?.*(expos|leak)|api.?key.*(expos|leak)", "creds"),
+    (r"credential|senhas|password.*file|creds.*expos|plaintext.*pass|cred.*expos|arquivo.*senha|\.env\b|environment file|secrets?.*(expos|leak|disclos|hardcod|in (the )?(apk|dex|strings|assets|smali|source|code))|api.?key.*(expos|leak|hardcod|in (the )?(apk|dex|strings|assets|smali|code))|secret.*disclosure|hardcoded secret|hard.?cod.*(secret|api.?key|token|\bkey\b|credential)", "creds"),
     (r"missing authentication|no authentication required|unauthenticated access|authentication not required|broken access control|missing authoriz|missing object.?level author", "idor"),
     # rce is the LAST impact class: "<X> -> RCE" keeps root cause X (every specific
     # root cause that leads to RCE is above). Only pure command-injection lands here.

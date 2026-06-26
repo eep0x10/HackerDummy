@@ -84,6 +84,18 @@ brute force).
 | `graphql` | GraphQL introspection enabled / schema exposure |
 | `dos` | Uncontrolled resource consumption (query depth/complexity, amplification) |
 
+## Mobile (Android)
+| key | meaning |
+|-----|---------|
+| `debuggable` | `android:debuggable="true"` shipped — JDWP debugger attach, read/modify memory |
+| `backup-allowed` | `android:allowBackup="true"` — private app data extractable via `adb backup` |
+| `exported-component` | Activity/Service/Receiver/Provider exported without permission (IPC abuse) |
+| `cleartext-traffic` | Cleartext HTTP permitted (`usesCleartextTraffic` / network-security-config) |
+
+> Hardcoded mobile secrets (API keys, signing secrets in `strings.xml`/`smali`/assets)
+> map to `creds`; weak mobile crypto to `weak-crypto`; content-provider path traversal
+> to `lfi` — the same web classes apply.
+
 ## Catch-all
 | key | meaning |
 |-----|---------|
