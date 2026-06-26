@@ -103,9 +103,10 @@ vulns in that lab's answer key.
 | 11 | [LegacyPortal](labs/11-legacyportal/) | PHP LFI-wrapper machinery — `php://filter` source disclosure, path traversal, upload→LFI→RCE polyglot, phpinfo, PHP type-juggling auth bypass | 6 |
 | 12 | [CloudPivot](labs/12-cloudpivot/) | **Chaining** — SSRF → cloud IMDS instance-role credential theft → token reuse → RCE (each step gates the next), + verbose errors | 5 |
 | 13 | [AspNetVault](labs/13-aspnetvault/) | .NET / IIS — exposed `web.config` (connectionStrings + machineKey), ViewState deserialization, ASP.NET trace viewer, version banners | 5 |
+| 14 | [ClientForge](labs/14-clientforge/) | Client-side — DOM XSS (`location.hash`→`innerHTML`), prototype pollution, DOM open-redirect, hardcoded secret in JS, missing CSP | 5 |
 
-**101 planted vulnerabilities across 13 labs.** More on the way (native
-deserialization, request smuggling, client-side).
+**106 planted vulnerabilities across 14 labs.** More on the way (native
+deserialization, request smuggling, SSO/SAML).
 
 > Labs 01–10 are single-file stdlib **Python** (`python labs/NN/app.py`). Lab 11 is
 > **PHP** (`labs/11-legacyportal/serve.sh` / `serve.ps1`) and needs PHP on PATH.
@@ -145,6 +146,7 @@ took the agent from the baselines below to 100% recall:
 | 11 LegacyPortal | 67% | **100%** | PHP type-juggling auth had no class vocab; LFI `?page=` had no recon signal |
 | 12 CloudPivot | 60% | **100%** | plugin chained SSRF→IMDS→RCE; IMDS cred-theft mis-classed as `ssrf`; error-fuzzing missed malformed URL ports |
 | 13 AspNetVault | 60% | **100%** | full .NET recon worked blind; `rce` had to move last so "ViewState deser→RCE" keeps its root cause |
+| 14 ClientForge | 60% | **100%** | new `prototype-pollution` class; `xss` didn't recognise DOM XSS (no `\bxss\b`/DOM vocab) |
 
 That loop — *measure → find the blind spot → fix → re-measure* — is exactly what
 PentestBench is for, whatever agent you bring. The pattern held in all ten labs:

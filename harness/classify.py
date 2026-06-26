@@ -45,7 +45,8 @@ TAXONOMY = [
     # ssrf/xxe/deser/ssti above); only pure command-injection lands on rce.
     (r"\brce\b|remote code|command inj|os command|code execution|inje[cç].*comando", "rce"),
     (r"stored xss|persistent xss|xss armazenad", "stored-xss"),
-    (r"reflect.*xss|xss reflet|cross.?site script|reflected.*script|\bxss\b", "xss"),
+    (r"reflect.*xss|xss reflet|cross.?site script|reflected.*script|dom.?based.?xss|dom.?xss", "xss"),
+    (r"prototype pollut|proto.?pollut|__proto__|object\.prototype|constructor.*pollut", "prototype-pollution"),
     (r"\bidor\b|insecure direct object|broken object level|\bbola\b|refer[eê]ncia direta", "idor"),
     (r"\bbfla\b|broken function.?level|function.?level authoriz|missing function.?level", "bfla"),
     (r"excessive data exposure|excessive.*data exposur|oversharing|overshar.*(field|data)", "excessive-data"),

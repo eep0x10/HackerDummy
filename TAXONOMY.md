@@ -26,8 +26,9 @@ brute force).
 ## Cross-site & client-trust
 | key | meaning |
 |-----|---------|
-| `xss` | Reflected cross-site scripting |
+| `xss` | Cross-site scripting (reflected / DOM-based) |
 | `stored-xss` | Stored/persistent XSS |
+| `prototype-pollution` | Client-side prototype pollution (`__proto__` via merge/clone) |
 | `open-redirect` | Unvalidated redirect |
 | `clickjacking` | Missing frame protection (X-Frame-Options / frame-ancestors) |
 | `cors-misconfig` | Permissive CORS (reflected/`null`/wildcard origin + credentials) |

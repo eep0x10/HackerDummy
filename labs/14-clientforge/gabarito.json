@@ -1,0 +1,52 @@
+{
+  "lab": "14-clientforge",
+  "base_url": "http://127.0.0.1:18814",
+  "stack": "client-side web app (static HTML/JS served by python-stdlib)",
+  "vulns": [
+    {
+      "id": "E1",
+      "class": "xss",
+      "severity": "high",
+      "route": "/search.html",
+      "desc": "DOM-based XSS: /search.html reads user-controlled location.hash (and location.search 'q') and writes it into the page via element.innerHTML and document.write with no encoding, so a crafted fragment/param executes script in the victim's browser.",
+      "exploit": "Open /search.html#<img src=x onerror=alert(document.domain)> (or /search.html?q=<script>...) -> the payload is written to innerHTML/document.write and runs.",
+      "points": 1
+    },
+    {
+      "id": "E2",
+      "class": "prototype-pollution",
+      "severity": "high",
+      "route": "*",
+      "desc": "Client-side prototype pollution: app.js merge() recursively copies attacker-controlled JSON into a target object with no __proto__/constructor guard, and /profile.html feeds it the URL ?prefs= value. A payload with a __proto__ key pollutes Object.prototype globally, enabling property injection / privilege-flag gadgets / DOM-XSS gadget chains.",
+      "exploit": "GET /profile.html?prefs={\"__proto__\":{\"isAdmin\":true}} -> merge() walks into __proto__ -> every object now has isAdmin=true (Object.prototype polluted).",
+      "points": 1
+    },
+    {
+      "id": "E3",
+      "class": "open-redirect",
+      "severity": "medium",
+      "route": "/go.html",
+      "desc": "DOM-based open redirect: /go.html sets location.href to the unvalidated ?next= parameter (no allow-list / same-origin check), so it redirects to arbitrary external URLs and even executes javascript: URIs.",
+      "exploit": "GET /go.html?next=https://evil.example/ (or next=javascript:alert(1)) -> browser navigates to the attacker target.",
+      "points": 1
+    },
+    {
+      "id": "E4",
+      "class": "creds",
+      "severity": "medium",
+      "route": "/static/app.js",
+      "desc": "Secret in client-side code: app.js hardcodes a privileged INTERNAL_API_KEY (and an analytics token) that is shipped to and downloadable by every visitor.",
+      "exploit": "GET /static/app.js -> INTERNAL_API_KEY = 'cf_live_...' visible in source, usable from any client.",
+      "points": 1
+    },
+    {
+      "id": "E5",
+      "class": "headers",
+      "severity": "low",
+      "route": "*",
+      "desc": "Missing security headers on all responses: no Content-Security-Policy (which would mitigate the DOM XSS), no X-Frame-Options/frame-ancestors, no X-Content-Type-Options.",
+      "exploit": "curl -I any page -> no CSP/XFO/XCTO present.",
+      "points": 1
+    }
+  ]
+}
