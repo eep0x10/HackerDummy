@@ -1,0 +1,52 @@
+{
+  "lab": "16-samlforge",
+  "base_url": "http://127.0.0.1:18816",
+  "stack": "python-stdlib SAML 2.0 Service Provider (SP) mock",
+  "vulns": [
+    {
+      "id": "G1",
+      "class": "auth",
+      "severity": "critical",
+      "route": "/sso/acs",
+      "desc": "SAML authentication bypass: the Assertion Consumer Service (/sso/acs) does NOT verify the assertion's XML signature, so a tampered or unsigned SAMLResponse is trusted. Capture the sample assertion from /sso/login, change the NameID and/or the role AttributeValue to admin (or strip the <ds:Signature>), replay it, and you are authenticated as that identity with admin access.",
+      "exploit": "GET /sso/login -> base64 SAMLResponse. Decode, set NameID=admin and role=admin, re-encode, POST to /sso/acs -> {authenticated:true, admin_access:true} despite signature_verified:false.",
+      "points": 1
+    },
+    {
+      "id": "G2",
+      "class": "xxe",
+      "severity": "high",
+      "route": "/sso/acs",
+      "desc": "XXE via SAMLResponse: the SP parses the assertion XML with external general entities ENABLED, so a SAMLResponse carrying a DOCTYPE with an external entity reads arbitrary server files (the entity is reflected via the NameID/AttributeValue back in the response).",
+      "exploit": "POST /sso/acs a SAMLResponse with <!DOCTYPE x [<!ENTITY xxe SYSTEM \"file:///.../sp-private.txt\">]> and NameID=&xxe; -> the file content is returned as the authenticated NameID.",
+      "points": 1
+    },
+    {
+      "id": "G3",
+      "class": "open-redirect",
+      "severity": "medium",
+      "route": "/sso/acs",
+      "desc": "Open redirect via RelayState: after consuming the assertion, /sso/acs redirects (302 Location) to the attacker-supplied RelayState with no allow-list / same-origin validation.",
+      "exploit": "POST /sso/acs with a valid SAMLResponse and RelayState=https://evil.example/ -> 302 Location: https://evil.example/.",
+      "points": 1
+    },
+    {
+      "id": "G4",
+      "class": "info-disc",
+      "severity": "medium",
+      "route": "/sso/acs",
+      "desc": "Verbose errors: a malformed SAMLResponse (bad base64 / broken XML) triggers a full Python traceback in the response body, disclosing source paths and internals.",
+      "exploit": "POST /sso/acs with SAMLResponse=not-valid-xml -> 500 with full traceback.",
+      "points": 1
+    },
+    {
+      "id": "G5",
+      "class": "headers",
+      "severity": "low",
+      "route": "*",
+      "desc": "Missing security headers on all responses: no Content-Security-Policy, X-Frame-Options/frame-ancestors, X-Content-Type-Options, or HSTS.",
+      "exploit": "curl -I any endpoint -> none of CSP/XFO/XCTO/HSTS present.",
+      "points": 1
+    }
+  ]
+}

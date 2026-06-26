@@ -1,0 +1,2 @@
+SAMLFORGE_SP_PRIVATE_KEY=lab-fake-sp-signing-key-not-real-000000
+saml_sp_flag=flag{saml_signature_not_verified_and_xxe}
