@@ -1,0 +1,61 @@
+{
+  "lab": "11-legacyportal",
+  "base_url": "http://127.0.0.1:18811",
+  "stack": "PHP 8.x CMS (built-in server)",
+  "vulns": [
+    {
+      "id": "P1",
+      "class": "lfi",
+      "severity": "critical",
+      "route": "/",
+      "desc": "Local File Inclusion: GET /index.php?page=<path> does an unsanitized include() of a user-controlled path, reachable by every PHP LFI wrapper — php://filter (source disclosure of config.php incl. DB creds), ../ path traversal (read arbitrary host files), and inclusion of attacker-uploaded files (-> RCE, see P2).",
+      "exploit": "Source read: ?page=php://filter/convert.base64-encode/resource=config.php -> base64 of config.php (DB_PASS, APP_SECRET, FLAG). Traversal: ?page=../../../../Windows/win.ini. RCE: include an uploaded PHP file (P2) via ?page=../storage/uploads/<name>.",
+      "points": 1
+    },
+    {
+      "id": "P2",
+      "class": "upload",
+      "severity": "high",
+      "route": "/upload.php",
+      "desc": "Unrestricted file upload: /upload.php validates only the client-supplied Content-Type and a filename-extension substring (both attacker-controlled), so a PHP file is accepted. Stored outside the docroot but include()-able via the LFI (P1) -> upload->LFI->RCE chain. (Engine disable_functions blocks OS-exec, so PHP executes but shell commands are neutralized — RCE is still proven.)",
+      "exploit": "POST /upload.php a file named shell.jpg (or Content-Type image/png) containing <?php echo php_uname(); ?>; then GET /index.php?page=../storage/uploads/shell.jpg -> PHP executes (RCE).",
+      "points": 1
+    },
+    {
+      "id": "P3",
+      "class": "phpinfo",
+      "severity": "medium",
+      "route": "/phpinfo.php",
+      "desc": "phpinfo() diagnostics page left in production — discloses full PHP configuration, absolute paths, loaded modules, disable_functions, and environment variables.",
+      "exploit": "GET /phpinfo.php -> full phpinfo() dump. Also reachable via the LFI: ?page=phpinfo.php.",
+      "points": 1
+    },
+    {
+      "id": "P4",
+      "class": "auth",
+      "severity": "high",
+      "route": "/admin.php",
+      "desc": "Authentication bypass via PHP type juggling: /admin.php compares the submitted key to a magic-hash secret with loose == . Two scientific-notation numeric strings (0e<digits>) compare equal as the number 0, so any 0e<digits> key authenticates as admin.",
+      "exploit": "POST /admin.php key=0e1 (or any 0e followed by digits) -> '0e1' == '0e4620...' is true -> admin panel + flag.",
+      "points": 1
+    },
+    {
+      "id": "P5",
+      "class": "info-disc",
+      "severity": "medium",
+      "route": "*",
+      "desc": "Security misconfiguration (app-wide): display_errors is On, so invalid input emits PHP warnings/errors disclosing absolute filesystem paths and internals (e.g. a non-existent ?page= triggers an include() warning with the full path).",
+      "exploit": "GET /index.php?page=/nope -> PHP Warning: include(/nope): Failed to open stream ... with absolute paths in the body.",
+      "points": 1
+    },
+    {
+      "id": "P6",
+      "class": "headers",
+      "severity": "low",
+      "route": "*",
+      "desc": "Missing security headers on all responses: no Content-Security-Policy, X-Frame-Options/frame-ancestors, X-Content-Type-Options, or HSTS.",
+      "exploit": "curl -I any endpoint -> none of CSP/XFO/XCTO/HSTS present.",
+      "points": 1
+    }
+  ]
+}

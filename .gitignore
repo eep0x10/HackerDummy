@@ -6,3 +6,4 @@ _server.*.log
 .DS_Store
 # runtime upload storage (apps regenerate seed files on startup; never ship test uploads)
 labs/*/uploads/
+labs/*/storage/uploads/

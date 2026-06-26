@@ -100,9 +100,13 @@ vulns in that lab's answer key.
 | 08 | [TrustEdge](labs/08-trustedge/) | Trust-boundary / header misconfig (CORS reflection, Host-header injection, X-Forwarded-Host, CRLF response splitting, cache poisoning) | 7 |
 | 09 | [InjectArena](labs/09-injectarena/) | Beyond-SQL injection (NoSQL operator, LDAP, XPath, SSI, CSV/formula) | 5 |
 | 10 | [UploadForge](labs/10-uploadforge/) | File-upload surface — unrestricted upload → webshell → RCE, default-creds chain, traversal read, SVG stored-XSS, IDOR | 7 |
+| 11 | [LegacyPortal](labs/11-legacyportal/) | PHP LFI-wrapper machinery — `php://filter` source disclosure, path traversal, upload→LFI→RCE polyglot, phpinfo, PHP type-juggling auth bypass | 6 |
 
-**85 planted vulnerabilities across 10 labs.** More on the way (cloud-metadata
+**91 planted vulnerabilities across 11 labs.** More on the way (cloud-metadata
 SSRF, native deserialization, request smuggling).
+
+> Labs 01–10 are single-file stdlib **Python** (`python labs/NN/app.py`). Lab 11 is
+> **PHP** (`labs/11-legacyportal/serve.sh` / `serve.ps1`) and needs PHP on PATH.
 
 ## Using it for fine-tuning
 
@@ -136,6 +140,7 @@ took the agent from the baselines below to 100% recall:
 | 08 TrustEdge | 14% | **100%** | no header-trust vocabulary (CORS / Host / CRLF / cache) |
 | 09 InjectArena | 0% | **100%** | no NoSQL/LDAP/XPath/SSI/CSV-injection classes |
 | 10 UploadForge | 86% | **100%** | upload→RCE detected but classified `rce`; `upload` must beat generic `rce` |
+| 11 LegacyPortal | 67% | **100%** | PHP type-juggling auth had no class vocab; LFI `?page=` had no recon signal |
 
 That loop — *measure → find the blind spot → fix → re-measure* — is exactly what
 PentestBench is for, whatever agent you bring. The pattern held in all ten labs:
