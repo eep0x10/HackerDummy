@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- RootLite — INTENTIONALLY VULNERABLE Android app (decompiled apktool form).
+     Theme: RASP that LOOKS protective but is naive and trivially bypassable. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.rootlite.app"
+    android:versionCode="9"
+    android:versionName="5.0">
+
+    <uses-sdk android:minSdkVersion="23" android:targetSdkVersion="31" />
+
+    <application
+        android:debuggable="true"
+        android:label="@string/app_name"
+        android:theme="@android:style/Theme.Material.Light">
+
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".PinActivity" />
+    </application>
+</manifest>

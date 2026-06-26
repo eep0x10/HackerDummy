@@ -1,0 +1,35 @@
+{
+  "lab": "M05-rootlite",
+  "platform": "android",
+  "artifact": "labs/mobile/M05-rootlite/app  (decompiled apktool tree)",
+  "stack": "Android APK (decompiled) — naive, bypassable RASP (rung 5 of the mobile ladder)",
+  "vulns": [
+    {
+      "id": "R1",
+      "class": "weak-anti-tampering",
+      "severity": "medium",
+      "route": "*",
+      "desc": "TamperCheck implements root, emulator and anti-debug detection as single naive Java checks: isRooted() only tests new File(\"/system/bin/su\").exists(); isEmulator() only checks Build.FINGERPRINT.contains(\"generic\"); isDebugged() is a lone Debug.isDebuggerConnected(). No native layer, no SafetyNet/Play Integrity attestation, no integrity/cross-check — each is defeated instantly with a one-line Frida hook or an apktool smali patch (return false). Security theatre.",
+      "exploit": "frida -e 'Java.use(\"com.rootlite.app.TamperCheck\").isRooted.implementation = function(){return false}' ; or patch the smali to 'const v2, 0x0'.",
+      "points": 1
+    },
+    {
+      "id": "R2",
+      "class": "screenshot-allowed",
+      "severity": "low",
+      "route": "*",
+      "desc": "PinActivity displays/handles the user's secret PIN but never sets WindowManager FLAG_SECURE (getWindow().addFlags(FLAG_SECURE)); no screen in the app sets it. The PIN screen is therefore captured by screenshots, screen recording, and appears in the recent-apps thumbnail.",
+      "exploit": "screen-record or screenshot the PIN screen; or read the recents thumbnail cache.",
+      "points": 1
+    },
+    {
+      "id": "R3",
+      "class": "debuggable",
+      "severity": "medium",
+      "route": "*",
+      "desc": "android:debuggable=\"true\" ships in the release manifest. Besides letting any user attach a debugger, it directly undermines the app's own anti-debug RASP (a debuggable build is trivially instrumented).",
+      "exploit": "grep android:debuggable -> true; attach jdb / run-as; the Debug.isDebuggerConnected() check is moot.",
+      "points": 1
+    }
+  ]
+}
