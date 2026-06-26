@@ -1,0 +1,52 @@
+{
+  "lab": "20-graphforge",
+  "base_url": "http://127.0.0.1:18821",
+  "stack": "python-stdlib GraphQL API (advanced query-execution surface)",
+  "vulns": [
+    {
+      "id": "O1",
+      "class": "dos",
+      "severity": "high",
+      "route": "/graphql",
+      "desc": "Query cost / alias amplification DoS: the server applies NO query cost, alias count, or depth limit, so an aliased query that repeats an expensive resolver hundreds of times is executed in full (alias-based amplification) -> resource exhaustion / response amplification.",
+      "exploit": "POST /graphql {query:'{a:report b:report c:report ... (x500)}'} -> all 500 resolvers run, response amplified ~500x; no cost limit.",
+      "points": 1
+    },
+    {
+      "id": "O2",
+      "class": "bfla",
+      "severity": "critical",
+      "route": "/graphql",
+      "desc": "Broken function-level authorization on a mutation: the promoteToAdmin mutation performs a privileged action (sets a user's role to admin) with NO authentication or authorization check, so any caller can escalate privileges.",
+      "exploit": "POST /graphql {query:'mutation{promoteToAdmin(userId:2){id role}}'} with no auth -> bob becomes admin.",
+      "points": 1
+    },
+    {
+      "id": "O3",
+      "class": "csrf",
+      "severity": "medium",
+      "route": "/graphql",
+      "desc": "GraphQL CSRF: mutations are accepted over GET (query in the URL) and over form-encoded POST (simple content-type) with no CSRF token and no application/json enforcement, so a cross-site request can perform state-changing mutations.",
+      "exploit": "GET /graphql?query=mutation{promoteToAdmin(userId:2){role}} (or a form POST) -> the mutation executes cross-site, no token required.",
+      "points": 1
+    },
+    {
+      "id": "O4",
+      "class": "graphql",
+      "severity": "medium",
+      "route": "/graphql",
+      "desc": "Introspection enabled in production: the __schema/__type introspection queries return the full schema (types, fields including sensitive ones like User.ssn), aiding enumeration of the attack surface.",
+      "exploit": "POST /graphql {query:'{__schema{types{name fields{name}}}}'} -> full schema dump.",
+      "points": 1
+    },
+    {
+      "id": "O5",
+      "class": "headers",
+      "severity": "low",
+      "route": "*",
+      "desc": "Missing security headers on all responses: no Content-Security-Policy, X-Frame-Options/frame-ancestors, X-Content-Type-Options, or HSTS.",
+      "exploit": "curl -I any endpoint -> none of CSP/XFO/XCTO/HSTS present.",
+      "points": 1
+    }
+  ]
+}
