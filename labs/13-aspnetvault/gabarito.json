@@ -1,0 +1,52 @@
+{
+  "lab": "13-aspnetvault",
+  "base_url": "http://127.0.0.1:18813",
+  "stack": "ASP.NET Web Forms / IIS (faithful stdlib-Python mock)",
+  "vulns": [
+    {
+      "id": "D1",
+      "class": "web-config",
+      "severity": "critical",
+      "route": "/web.config",
+      "desc": "Exposed web.config: GET /web.config returns the full configuration, disclosing the SQL connectionString (sa password), the <machineKey> validationKey/decryptionKey (lets an attacker forge signed ViewState and auth cookies), enableViewStateMac=false, and customErrors=Off / debug=true.",
+      "exploit": "GET /web.config -> connectionStrings password, machineKey validationKey+decryptionKey, enableViewStateMac=false.",
+      "points": 1
+    },
+    {
+      "id": "D2",
+      "class": "deserialization",
+      "severity": "critical",
+      "route": "/default.aspx",
+      "desc": "ViewState deserialization -> RCE: __VIEWSTATE on Default.aspx is unsigned (enableViewStateMac=false, confirmed by web.config D1) and not encrypted, so a modified/forged ViewState is deserialized server-side without MAC validation. A ViewState gadget (e.g. ysoserial.net ObjectStateFormatter / LosFormatter) achieves remote code execution. The leaked machineKey (D1) also lets an attacker forge a valid signed ViewState even where MAC is on.",
+      "exploit": "POST /Default.aspx with a tampered __VIEWSTATE -> accepted without 'Validation of viewstate MAC failed' (MAC off). A gadget __VIEWSTATE is recognised as RCE-capable (deserialization executes it).",
+      "points": 1
+    },
+    {
+      "id": "D3",
+      "class": "info-disc",
+      "severity": "high",
+      "route": "/trace.axd",
+      "desc": "ASP.NET trace viewer exposed (trace enabled, localOnly=false): GET /trace.axd discloses recent requests, session ids, server variables (physical paths C:\\inetpub\\..., AUTH_USER/LOGON_USER service account), and request details to any remote user.",
+      "exploit": "GET /trace.axd -> application trace with server variables, session id, and physical paths.",
+      "points": 1
+    },
+    {
+      "id": "D4",
+      "class": "version",
+      "severity": "low",
+      "route": "*",
+      "desc": "Software/framework version disclosure: every response sends Server: Microsoft-IIS/7.5, X-Powered-By: ASP.NET, and X-AspNet-Version: 2.0.50727 (an out-of-support .NET 2.0 / IIS 7.5 fingerprint), easing targeted exploitation.",
+      "exploit": "curl -I / -> Server + X-AspNet-Version + X-Powered-By banners.",
+      "points": 1
+    },
+    {
+      "id": "D5",
+      "class": "headers",
+      "severity": "low",
+      "route": "*",
+      "desc": "Missing security headers on all responses: no Content-Security-Policy, X-Frame-Options/frame-ancestors, X-Content-Type-Options, or HSTS.",
+      "exploit": "curl -I any endpoint -> none of CSP/XFO/XCTO/HSTS present.",
+      "points": 1
+    }
+  ]
+}

@@ -35,13 +35,15 @@ TAXONOMY = [
     # title states the RCE impact ("File Upload -> RCE / webshell"). Pure command-injection
     # RCE has no upload words and falls through to 'rce'.
     (r"file.?upload|unrestricted upload|arbitrary file|webshell|polyglot|upload.*(shell|arbitr|malicios|webshell|rce|remote code|execu)", "upload"),
-    (r"\brce\b|remote code|command inj|os command|code execution|inje[cç].*comando", "rce"),
     (r"\bxxe\b|xml external entit|external general entit|external.*entity injection", "xxe"),
     (r"deserializ|desserializ|insecure.*deserial|unsafe.*(pickle|unpickle|unserialize|marshal)|pickle.*load|object injection|__reduce__|unmarshal", "deserialization"),
     (r"\bssti\b|server.?side template inject|template injection|expression language inject", "ssti"),
     (r"\bimds\b|imdsv\d|instance metadata|metadata.*credential|credential.*(theft|exfil)|169\.254\.169\.254|security-credentials|instance.?role.*(credential|token)|steal.*(instance|iam|role).*(credential|token)", "creds"),
     (r"\bssrf\b|server.?side request", "ssrf"),
     (r"\blfi\b|local file incl|path traversal|directory traversal|file inclusion", "lfi"),
+    # rce LAST among code-exec classes: "<X> -> RCE" keeps root cause X (upload/lfi/
+    # ssrf/xxe/deser/ssti above); only pure command-injection lands on rce.
+    (r"\brce\b|remote code|command inj|os command|code execution|inje[cç].*comando", "rce"),
     (r"stored xss|persistent xss|xss armazenad", "stored-xss"),
     (r"reflect.*xss|xss reflet|cross.?site script|reflected.*script|\bxss\b", "xss"),
     (r"\bidor\b|insecure direct object|broken object level|\bbola\b|refer[eê]ncia direta", "idor"),
@@ -78,7 +80,7 @@ TAXONOMY = [
     (r"version disclos|disclosure de vers|vers[aã]o.*expos|x-aspnet-version|x-powered-by|software.*banner", "version"),
     (r"credential|senhas|password.*file|creds.*expos|plaintext.*pass|cred.*expos|arquivo.*senha|\.env\b|secrets?.*(expos|leak)|api.?key.*(expos|leak)", "creds"),
     (r"missing authentication|no authentication required|unauthenticated access|authentication not required|broken access control|missing authoriz|missing object.?level author", "idor"),
-    (r"info.*disclos|information disclosure|path disclos|internal path|caminho.*interno|vazamento|verbose error|erro verboso|stack.?trace|traceback|debug mode|field suggestion|unhandled exception", "info-disc"),
+    (r"info.*disclos|information disclosure|path disclos|internal path|caminho.*interno|vazamento|verbose error|erro verboso|stack.?trace|traceback|debug mode|field suggestion|unhandled exception|trace\.axd|asp.?net.*trace|\belmah\b|customerror|yellow screen of death", "info-disc"),
 ]
 
 _COMPILED = [(re.compile(rx, re.I), key) for rx, key in TAXONOMY]
