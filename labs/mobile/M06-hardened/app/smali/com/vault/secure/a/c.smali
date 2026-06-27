@@ -2,15 +2,10 @@
 .super Ljava/lang/Object;
 .source "c.java"
 
-# ProGuard/R8-obfuscated class (a.c). Despite the renaming, it still ships the
-# HMAC request-signing secret as a base64 string constant compiled into the dex.
-# Anyone who unpacks the APK and greps for the constant recovers the live signing
-# key — obfuscation is not a secret store. (placeholder value, training only)
 
 .field private static final a:Ljava/lang/String; = "aE1hYz0xZjljMWU3YTJiNmQ0MGY4YTFjNWU5ZDdiMjg0c2VjcmV0"
 
 
-# returns the decoded HMAC signing key used to sign API requests
 .method public static a()Ljava/lang/String;
     .locals 3
 

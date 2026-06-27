@@ -2,10 +2,6 @@
 .super Ljava/lang/Object;
 .source "NetSecurity.java"
 
-# STRONG control (NOT a vulnerability): the network layer uses OkHttp
-# CertificatePinner with SHA-256 SPKI pins for the production API (primary +
-# backup), built into every client. There is NO debug/QA bypass on the network
-# layer — pinning is always enforced. (A correct, robust control — do not flag.)
 
 
 .method public static pinnedClient()Lokhttp3/OkHttpClient;

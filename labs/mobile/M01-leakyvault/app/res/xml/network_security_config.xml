@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Permits plaintext HTTP to every domain (no per-domain pinning either). -->
 <network-security-config>
     <base-config cleartextTrafficPermitted="true">
         <trust-anchors>

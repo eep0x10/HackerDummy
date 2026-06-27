@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- NetForge — INTENTIONALLY VULNERABLE Android app (decompiled apktool form).
-     Theme: broken TLS trust + dangerous WebView. Training only. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.netforge.app"
     android:versionCode="5"
@@ -21,8 +19,6 @@
             </intent-filter>
         </activity>
 
-        <!-- exported WebView host: loads a URL taken straight from the incoming
-             intent, and is BROWSABLE (any web page can fire netforge://open?url=) -->
         <activity
             android:name=".WebViewActivity"
             android:exported="true">

@@ -2,12 +2,8 @@
 .super Ljava/lang/Object;
 .source "TamperCheck.java"
 
-# "RASP" for the app. Every check is a single naive test that a Frida one-liner or
-# an apktool smali patch defeats instantly: no native layer, no attestation, no
-# integrity check, results not cross-validated. Security theatre.
 
 
-# root detection = does /system/bin/su exist? (one path, easily hidden / hooked)
 .method public static isRooted()Z
     .locals 3
 
@@ -25,7 +21,6 @@
 .end method
 
 
-# emulator detection = Build.FINGERPRINT contains "generic" (trivially spoofed)
 .method public static isEmulator()Z
     .locals 2
 
@@ -41,7 +36,6 @@
 .end method
 
 
-# anti-debug = Debug.isDebuggerConnected() (single call, hook returns false)
 .method public static isDebugged()Z
     .locals 1
 

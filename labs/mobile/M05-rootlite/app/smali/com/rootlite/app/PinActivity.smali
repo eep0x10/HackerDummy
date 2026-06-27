@@ -2,10 +2,6 @@
 .super Landroid/app/Activity;
 .source "PinActivity.java"
 
-# The PIN-entry screen for the wallet. It displays/handles the user's secret PIN
-# but never calls getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE),
-# so the screen (the PIN) is captured by screenshots, screen recording, and shows
-# up in the recent-apps thumbnail. No FLAG_SECURE anywhere in the app.
 
 
 .method protected onCreate(Landroid/os/Bundle;)V
@@ -14,8 +10,6 @@
 
     invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V
 
-    # NOTE: no getWindow().setFlags(FLAG_SECURE, FLAG_SECURE) here — sensitive screen
-    # left screenshot-/recording-capturable.
 
     const v0, 0x7f030002
 
@@ -29,7 +23,6 @@
     .locals 1
     .param p1, "pin"
 
-    # runs the naive RASP checks before accepting the PIN
     invoke-static {}, Lcom/rootlite/app/TamperCheck;->isRooted()Z
 
     move-result v0

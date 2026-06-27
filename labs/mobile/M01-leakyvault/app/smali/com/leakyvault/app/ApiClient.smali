@@ -2,13 +2,10 @@
 .super Ljava/lang/Object;
 .source "ApiClient.java"
 
-# ---- hardcoded backend credentials compiled straight into the dex ----
-# (placeholders for training; a real build would ship live keys here)
 .field private static final API_KEY:Ljava/lang/String; = "lv_live_3f9c1e7a2b6d40f8a1c5e9d7b2840000"
 
 .field private static final HMAC_SECRET:Ljava/lang/String; = "lv_sign_s3cr3t_DO_NOT_SHIP_00000000"
 
-# plaintext http:// base URL — no TLS
 .field private static final BASE_URL:Ljava/lang/String; = "http://api.leakyvault.example/v1"
 
 
@@ -19,7 +16,6 @@
 
     const-string v1, "Bearer lv_live_3f9c1e7a2b6d40f8a1c5e9d7b2840000"
 
-    # leaks the bearer token to logcat
     invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
 
     return-object v1

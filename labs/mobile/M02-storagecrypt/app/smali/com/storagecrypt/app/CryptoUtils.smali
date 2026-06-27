@@ -2,7 +2,6 @@
 .super Ljava/lang/Object;
 .source "CryptoUtils.java"
 
-# hardcoded AES key compiled into the dex (16 bytes)
 .field private static final AES_KEY:Ljava/lang/String; = "1234567890123456"
 
 
@@ -10,14 +9,12 @@
     .locals 6
     .param p0, "plaintext"    # [B
 
-    # AES in ECB mode — leaks plaintext block structure (ECB penguin)
     const-string v0, "AES/ECB/NoPadding"
 
     invoke-static {v0}, Ljavax/crypto/Cipher;->getInstance(Ljava/lang/String;)Ljavax/crypto/Cipher;
 
     move-result-object v1
 
-    # key built from the hardcoded constant above
     const-string v2, "1234567890123456"
 
     invoke-virtual {v2}, Ljava/lang/String;->getBytes()[B
@@ -30,7 +27,6 @@
 
     invoke-direct {v3, v2, v4}, Ljavax/crypto/spec/SecretKeySpec;-><init>([BLjava/lang/String;)V
 
-    # all-zero static IV, reused for every message
     const/16 v4, 0x10
 
     new-array v4, v4, [B
@@ -55,7 +51,6 @@
     .locals 3
     .param p0, "pin"    # Ljava/lang/String;
 
-    # unsalted MD5 of the user's PIN — instantly brute-forced / rainbow-tabled
     const-string v0, "MD5"
 
     invoke-static {v0}, Ljava/security/MessageDigest;->getInstance(Ljava/lang/String;)Ljava/security/MessageDigest;

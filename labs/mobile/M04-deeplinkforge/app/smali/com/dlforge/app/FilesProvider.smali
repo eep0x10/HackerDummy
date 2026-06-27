@@ -2,10 +2,6 @@
 .super Landroid/content/ContentProvider;
 .source "FilesProvider.java"
 
-# Exported content provider. openFile() builds a File path directly from the
-# request URI's last path segment with NO canonicalization / '../' check, so a
-# caller can traverse out of the intended directory and read any file in the app
-# sandbox (databases, shared_prefs, private files) via content://.../<...>.
 
 
 .method public openFile(Landroid/net/Uri;Ljava/lang/String;)Landroid/os/ParcelFileDescriptor;
@@ -15,7 +11,6 @@
 
     new-instance v0, Ljava/io/File;
 
-    # base dir = app files dir
     invoke-virtual {p0}, Lcom/dlforge/app/FilesProvider;->getContext()Landroid/content/Context;
 
     move-result-object v1
@@ -24,7 +19,6 @@
 
     move-result-object v1
 
-    # attacker-controlled path segment appended raw, e.g. "../databases/wallet.db"
     invoke-virtual {p1}, Landroid/net/Uri;->getLastPathSegment()Ljava/lang/String;
 
     move-result-object v2

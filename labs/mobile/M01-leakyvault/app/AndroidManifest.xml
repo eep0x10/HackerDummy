@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- LeakyVault — INTENTIONALLY VULNERABLE Android app (decompiled apktool form).
-     Training only. No real backend; all secret-shaped strings are placeholders. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.leakyvault.app"
     android:versionCode="1"
@@ -26,13 +24,10 @@
             </intent-filter>
         </activity>
 
-        <!-- exported with NO permission guard: any installed app can open the
-             internal admin screen directly -->
         <activity
             android:name=".AdminActivity"
             android:exported="true" />
 
-        <!-- exported broadcast receiver, no permission -->
         <receiver
             android:name=".SyncReceiver"
             android:exported="true">
@@ -41,7 +36,6 @@
             </intent-filter>
         </receiver>
 
-        <!-- exported content provider, no read/write permission -->
         <provider
             android:name=".NotesProvider"
             android:authorities="com.leakyvault.app.notes"

@@ -2,8 +2,6 @@
 .super Ljava/lang/Object;
 .source "InsecureTrust.java"
 
-# An X509TrustManager whose checkServerTrusted() does NOTHING — every certificate
-# is accepted (self-signed, expired, attacker MITM). No certificate pinning anywhere.
 .implements Ljavax/net/ssl/X509TrustManager;
 
 
@@ -12,7 +10,6 @@
     .param p1, "chain"
     .param p2, "authType"
 
-    # empty — trust everything
     return-void
 .end method
 
@@ -22,7 +19,6 @@
     .param p1, "chain"
     .param p2, "authType"
 
-    # empty body: NO validation of the server certificate chain -> accepts any cert
     return-void
 .end method
 
@@ -38,7 +34,6 @@
 .end method
 
 
-# HostnameVerifier that returns true for every hostname (allow-all)
 .method public static allowAllHostnames()Ljavax/net/ssl/HostnameVerifier;
     .locals 1
 

@@ -2,10 +2,6 @@
 .super Landroid/app/Activity;
 .source "QaActivity.java"
 
-# Leftover QA/debug screen, shipped EXPORTED in the release manifest with no
-# permission. Any installed app can launch it. It exposes internal debug toggles
-# — including writing "qa_disable_checks"=true into the "cfg" prefs, which flips
-# the Guard backdoor and disables the whole RASP — and dumps internal config.
 
 
 .method protected onCreate(Landroid/os/Bundle;)V
@@ -14,7 +10,6 @@
 
     invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V
 
-    # write the QA override pref -> disables Guard's tamper checks app-wide
     const-string v0, "cfg"
 
     const/4 v1, 0x0

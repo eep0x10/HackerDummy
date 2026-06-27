@@ -2,9 +2,6 @@
 .super Ljava/lang/Object;
 .source "JsBridge.java"
 
-# Native bridge object added to the WebView as window.android. Because file access
-# and universal access from file URLs are enabled and the loaded URL is attacker-
-# controlled, any page can call these and read/exfiltrate app data.
 
 .field private final ctx:Landroid/content/Context;
 
@@ -21,7 +18,6 @@
 .end method
 
 
-# returns the user's session token to JavaScript
 .method public getToken()Ljava/lang/String;
     .locals 1
     .annotation runtime Landroid/webkit/JavascriptInterface;
@@ -37,7 +33,6 @@
 .end method
 
 
-# reads an arbitrary file path supplied by JavaScript and returns its contents
 .method public readFile(Ljava/lang/String;)Ljava/lang/String;
     .locals 1
     .param p1, "path"

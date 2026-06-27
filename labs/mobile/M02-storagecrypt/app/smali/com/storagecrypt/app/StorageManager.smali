@@ -9,7 +9,6 @@
     .param p2, "token"      # Ljava/lang/String;
     .param p3, "cardPan"    # Ljava/lang/String;
 
-    # MODE_WORLD_READABLE (0x1) — every other app on the device can read these prefs
     const-string v0, "session"
 
     const/4 v1, 0x1
@@ -22,19 +21,16 @@
 
     move-result-object v1
 
-    # auth token written in cleartext
     const-string v2, "auth_token"
 
     invoke-interface {v1, v2, p2}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
 
-    # full card PAN written in cleartext
     const-string v2, "card_pan"
 
     invoke-interface {v1, v2, p3}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
 
     invoke-interface {v1}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    # ...and leaks the same secrets to logcat
     const-string v2, "StorageManager"
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -67,7 +63,6 @@
     .locals 3
     .param p1, "ctx"    # Landroid/content/Context;
 
-    # plaintext SQLite DB (no SQLCipher) storing PII in cleartext — see assets/db_schema.sql
     const-string v0, "wallet.db"
 
     const/4 v1, 0x0

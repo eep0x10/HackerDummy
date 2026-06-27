@@ -17,19 +17,16 @@
 
     move-result-object v1
 
-    # JavaScript enabled
     const/4 v2, 0x1
 
     invoke-virtual {v1, v2}, Landroid/webkit/WebSettings;->setJavaScriptEnabled(Z)V
 
-    # file:// access enabled, including universal access from file URLs
     invoke-virtual {v1, v2}, Landroid/webkit/WebSettings;->setAllowFileAccess(Z)V
 
     invoke-virtual {v1, v2}, Landroid/webkit/WebSettings;->setAllowFileAccessFromFileURLs(Z)V
 
     invoke-virtual {v1, v2}, Landroid/webkit/WebSettings;->setAllowUniversalAccessFromFileURLs(Z)V
 
-    # native bridge exposed to ALL loaded pages under window.android
     new-instance v3, Lcom/netforge/app/JsBridge;
 
     invoke-direct {v3, p0}, Lcom/netforge/app/JsBridge;-><init>(Landroid/content/Context;)V
@@ -38,7 +35,6 @@
 
     invoke-virtual {v0, v3, v1}, Landroid/webkit/WebView;->addJavascriptInterface(Ljava/lang/Object;Ljava/lang/String;)V
 
-    # URL taken straight from the (exported, BROWSABLE) intent — attacker-controlled
     invoke-virtual {p0}, Lcom/netforge/app/WebViewActivity;->getIntent()Landroid/content/Intent;
 
     move-result-object v1
