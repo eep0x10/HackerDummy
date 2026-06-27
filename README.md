@@ -13,7 +13,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/web%20labs-20-00e5ff">
   <img src="https://img.shields.io/badge/planted%20vulns-134-ffd166">
-  <img src="https://img.shields.io/badge/mobile%20labs-Android%20track-7b1fa2">
+  <img src="https://img.shields.io/badge/mobile%20labs-6%20(21%20vulns)-7b1fa2">
   <img src="https://img.shields.io/badge/dependencies-zero%20(stdlib)-00ff88">
   <img src="https://img.shields.io/badge/provider-agnostic-2563eb">
   <img src="https://img.shields.io/badge/use-authorized%20only-ff3b5c">
@@ -154,7 +154,7 @@ vulns in that lab's answer key.
 > Labs 01–10, 12–20 are single-file stdlib **Python** (`python labs/NN/app.py`).
 > Lab 11 is **PHP** (`labs/11-legacyportal/serve.sh`) and needs PHP on PATH.
 
-## The mobile labs (Android) · new track
+## The mobile labs (Android)
 
 A parallel track under [`labs/mobile/`](labs/mobile/) extends the benchmark to
 **Android app analysis**. Where the web labs measure *live exploitation*, the
@@ -178,7 +178,13 @@ mobile-banking target (RASP, native pinning, anti-instrumentation, obfuscation):
 | M03 | [NetForge](labs/mobile/M03-netforge/) ✅ | Network trust — trust-all `X509TrustManager`, allow-all hostname verifier, missing pinning, WebView JS-bridge / file access · **3 vulns, 100% recall** |
 | M04 | [DeepLinkForge](labs/mobile/M04-deeplinkforge/) ✅ | IPC / deep links — exported-component auth bypass, content-provider traversal, deep-link / intent redirection · **3 vulns, 100% recall** |
 | M05 | [RootLite](labs/mobile/M05-rootlite/) ✅ | RASP entry — naïve, bypassable root/emulator/anti-debug checks, missing `FLAG_SECURE`, debuggable · **3 vulns, 100% recall** |
-| M06 | Hardened | Banking-grade — OkHttp + native pinning, anti-Frida/anti-debug, integrity attestation, heavy obfuscation guarding the real flaw |
+| M06 | [Hardened](labs/mobile/M06-hardened/) ✅ | Banking-grade — OkHttp pinning + native anti-debug + obfuscation guarding hidden creds, an exported debug activity, and a RASP soft-toggle backdoor (precision test: don't flag the strong controls) · **3 vulns, 100% recall** |
+
+**All six rungs are live — 21 planted vulns, 100% recall** (run blind through the
+DroidAgent `droidagent-mobile` skill). They drove eleven new Android classes into the
+taxonomy: `debuggable`, `backup-allowed`, `exported-component`, `cleartext-traffic`,
+`insecure-storage`, `sensitive-log`, `improper-tls`, `webview`, `deeplink`,
+`weak-anti-tampering`, `screenshot-allowed`.
 
 > Decompile/build tooling: [`jadx`](https://github.com/skylot/jadx) +
 > [`apktool`](https://apktool.org). See [`labs/mobile/MOBILE.md`](labs/mobile/MOBILE.md).

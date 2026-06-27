@@ -1,0 +1,6 @@
+[placeholder for the native anti-tamper library — represents a real .so in the APK]
+libtamper.so provides the STRONG part of the guard: native anti-debug (ptrace),
+anti-Frida (port/maps scan) and integrity checks, called from Guard.nativeAntiDebug().
+This native control is robust on its own; the lab's flaw is that Guard.isTampered()
+can be short-circuited by the "qa_disable_checks" SharedPreference before it is ever
+reached. (Binary omitted — this is a decompiled training tree, not a runnable APK.)

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- VaultSecure (Hardened) — INTENTIONALLY VULNERABLE Android app (decompiled form).
+     Theme: a banking-grade hardened app — real OkHttp cert pinning, a native
+     anti-tamper lib, ProGuard/R8 obfuscation — that still hides real flaws.
+     Training only. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.vault.secure"
+    android:versionCode="11"
+    android:versionName="6.0">
+
+    <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="34" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="false"
+        android:label="@string/app_name"
+        android:theme="@android:style/Theme.Material.Light">
+
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- leftover QA/debug screen shipped EXPORTED in the release build -->
+        <activity
+            android:name=".a.QaActivity"
+            android:exported="true" />
+    </application>
+</manifest>
