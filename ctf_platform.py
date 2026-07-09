@@ -37,7 +37,6 @@ PYTHON_BIN = sys.executable
 IS_WIN = os.name == "nt"
 CSRF_TOKEN = secrets.token_urlsafe(32)
 
-LAB_COMMAND_OVERRIDES = {"11-legacyportal": ["bash", "serve.sh"]}
 _URL_RE = re.compile(r"(?:http://)?(?:127\.0\.0\.1|0\.0\.0\.0|localhost|\[[^\]]+\]):(\d{2,5})")
 
 # surface descriptions (vuln counts come from each lab's gabarito.json at runtime)
@@ -70,11 +69,15 @@ LABS = {}  # name -> {index, folder, command, process, log_file}
 
 # ── lab control (cross-platform) ────────────────────────────────────────────
 def resolve_command(folder):
-    if folder.name in LAB_COMMAND_OVERRIDES:
-        cmd = LAB_COMMAND_OVERRIDES[folder.name]
-        return cmd if (folder / cmd[-1]).is_file() else None
+    """Entrypoint per lab: `app.py` (stdlib) or the OS-appropriate PHP launcher.
+
+    The lone PHP lab (11-legacyportal) ships serve.ps1 + serve.sh (both boot a
+    sandboxed `php -S`); pick the right one per-OS so it boots like any other lab.
+    """
     if (folder / "app.py").is_file():
         return [PYTHON_BIN, "app.py"]
+    if IS_WIN and (folder / "serve.ps1").is_file():
+        return ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "serve.ps1"]
     if (folder / "serve.sh").is_file():
         return ["bash", "serve.sh"]
     return None

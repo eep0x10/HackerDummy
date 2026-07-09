@@ -2,9 +2,11 @@
 """
 run_labs.py — HackerDummy lab runner (cross-platform: Windows + Linux + macOS).
 
-Boots every runnable lab under ./labs (each `app.py`, or `serve.sh` for the PHP
-lab), prints a live table of LAB / folder / status / port, and tears everything
-down on CTRL+C. Each port is a different lab.
+Boots every runnable lab under ./labs — each is `python app.py` (stdlib), except
+the one PHP lab (11-legacyportal), which the runner launches automatically per-OS
+(serve.ps1 on Windows, serve.sh on POSIX; both boot a sandboxed `php -S`). Prints
+a live table of LAB / folder / status / port, and tears everything down on CTRL+C.
+Each port is a different lab. No manual PHP spin-up needed.
 
 Process control and port detection are cross-platform:
   - spawn:  POSIX -> start_new_session; Windows -> CREATE_NEW_PROCESS_GROUP
@@ -34,11 +36,6 @@ LABS_DIR = ROOT_DIR / "labs"
 LOG_DIR = ROOT_DIR / ".lab_logs"
 PYTHON_BIN = sys.executable
 IS_WIN = os.name == "nt"
-
-# labs whose entrypoint isn't app.py
-LAB_COMMAND_OVERRIDES = {
-    "11-legacyportal": ["bash", "serve.sh"],
-}
 
 processes = []
 shutdown_requested = False
@@ -101,11 +98,16 @@ def table_row(lab, folder, status, port, use_color):
 
 
 def resolve_lab_command(folder):
-    if folder.name in LAB_COMMAND_OVERRIDES:
-        command = LAB_COMMAND_OVERRIDES[folder.name]
-        return command if (folder / command[-1]).is_file() else None
+    """Entrypoint per lab: `app.py` (stdlib labs) or the OS-appropriate PHP launcher.
+
+    The lone PHP lab (11-legacyportal) ships serve.ps1 + serve.sh (both boot a
+    sandboxed `php -S`). The runner picks the right one per-OS and boots it like any
+    other lab — no manual PHP spin-up.
+    """
     if (folder / "app.py").is_file():
         return [PYTHON_BIN, "app.py"]
+    if IS_WIN and (folder / "serve.ps1").is_file():
+        return ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "serve.ps1"]
     if (folder / "serve.sh").is_file():
         return ["bash", "serve.sh"]
     return None
